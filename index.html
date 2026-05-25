@@ -49,10 +49,15 @@
         </div>
     </main>
 
-    <div id="delete-toolbar" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 glass border border-zinc-800 px-6 py-3 rounded-full hidden items-center gap-6 shadow-2xl animate-fade-in">
-        <span id="selected-count" class="text-sm font-medium text-zinc-300">0 Selected</span>
-        <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-600/90 hover:bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold ios-transition">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete From GitHub
+    <div id="delete-toolbar" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 glass border border-zinc-800 px-4 py-2.5 rounded-full hidden items-center gap-4 shadow-2xl animate-fade-in whitespace-nowrap">
+        <span id="selected-count" class="text-xs font-semibold text-zinc-400 px-1">0 Selected</span>
+        
+        <button onclick="downloadSelectedMedia()" class="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-blue-400"></i> Save to Device
+        </button>
+        
+        <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-950/40 hover:bg-red-600 border border-red-900/60 hover:border-transparent text-red-400 hover:text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete
         </button>
     </div>
 
@@ -74,9 +79,15 @@
     <div id="lightbox" class="fixed inset-0 bg-black z-50 hidden flex-col justify-between opacity-0 ios-transition">
         <div class="p-4 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent">
             <span id="lightbox-date" class="text-sm font-semibold text-zinc-300"></span>
-            <button onclick="closeLightbox()" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 rounded-full text-white active:scale-90 ios-transition">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+            
+            <div class="flex items-center gap-3">
+                <button id="lightbox-dl-btn" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 rounded-full active:scale-90 ios-transition">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+                <button onclick="closeLightbox()" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full active:scale-90 ios-transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
         </div>
         <div id="lightbox-main-view" class="relative w-full flex-1 flex items-center justify-center overflow-hidden touch-pan-y">
             <button onclick="navigateCarousel(-1)" class="absolute left-4 z-50 p-3 bg-zinc-900/40 rounded-full hover:bg-zinc-800/80 invisible md:visible"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
@@ -151,7 +162,7 @@
 
         let globalMediaRegistry = []; 
         let currentCarouselIndex = -1;
-        let uploadFileQueue = []; // Holds the multi-file batch upload array list context
+        let uploadFileQueue = []; 
         let isSelectMode = false;
         let selectedItems = []; 
         let touchStartX = 0; let touchEndX = 0;
@@ -182,84 +193,6 @@
             if(!user || !repo || !token) return alert("All fields are required.");
             localStorage.setItem('gh_user', user); localStorage.setItem('gh_repo', repo); localStorage.setItem('gh_token', token);
             location.reload();
-        }
-
-        /* --- MULTI-FILE QUEUE MULTI-PROCESSING CORE ENGINE --- */
-        function handleFileQueueSelection(e) {
-            const files = Array.from(e.target.files);
-            if(files.length === 0) return;
-
-            // Clear old values and update queue pointers
-            uploadFileQueue = files.map((file, index) => ({ id: index, file: file, status: 'pending' }));
-            
-            const queueContainer = document.getElementById('queue-container');
-            const queueListHTML = document.getElementById('upload-queue-list');
-            
-            queueListHTML.innerHTML = uploadFileQueue.map(item => `
-                <div id="queue-row-${item.id}" class="flex justify-between items-center bg-zinc-900/60 border border-zinc-800 rounded-lg px-3 py-2 text-xs">
-                    <span class="truncate max-w-[70%] font-medium text-zinc-300">${item.file.name}</span>
-                    <span id="queue-status-${item.id}" class="text-zinc-500 font-medium flex items-center gap-1">
-                        <i data-lucide="clock" class="w-3.5 h-3.5"></i> Pending
-                    </span>
-                </div>
-            `).join('');
-
-            queueContainer.classList.remove('hidden');
-            document.getElementById('upload-btn').removeAttribute('disabled');
-            document.getElementById('upload-btn').innerText = `Upload ${uploadFileQueue.length} Items`;
-            lucide.createIcons();
-        }
-
-        async function processUploadQueue() {
-            const mainBtn = document.getElementById('upload-btn');
-            mainBtn.setAttribute('disabled', 'true');
-            mainBtn.innerText = "Processing Queue...";
-
-            // Serial processing loop avoids out-of-memory errors
-            for (let i = 0; i < uploadFileQueue.length; i++) {
-                const item = uploadFileQueue[i];
-                const statusLabel = document.getElementById(`queue-status-${item.id}`);
-                
-                statusLabel.className = "text-blue-400 font-medium flex items-center gap-1";
-                statusLabel.innerHTML = `<div class="animate-spin rounded-full h-3 w-3 border-t border-blue-400"></div> Pushing...`;
-
-                try {
-                    await uploadSingleFilePromise(item.file);
-                    statusLabel.className = "text-green-400 font-semibold flex items-center gap-1";
-                    statusLabel.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Sent`;
-                    lucide.createIcons();
-                } catch (err) {
-                    statusLabel.className = "text-red-400 font-semibold flex items-center gap-1";
-                    statusLabel.innerHTML = `<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Failed`;
-                    lucide.createIcons();
-                }
-            }
-
-            mainBtn.innerText = "Queue Complete! Reloading...";
-            setTimeout(() => { location.reload(); }, 1200);
-        }
-
-        // Promisified individual background Base64 file parser engine
-        function uploadSingleFilePromise(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = async () => {
-                    const base64Content = reader.result.split(',')[1];
-                    const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-                    const uploadUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${safeName}`;
-
-                    try {
-                        const res = await fetch(uploadUrl, {
-                            method: 'PUT',
-                            headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ message: `Batch Upload: ${safeName}`, content: base64Content })
-                        });
-                        if (res.ok) resolve(); else reject();
-                    } catch (e) { reject(e); }
-                };
-                reader.onerror = (err) => reject(err);
-            });
         }
 
         function toggleSelectMode() {
@@ -295,6 +228,37 @@
             if (selectedItems.length > 0) toolbar.classList.ireplace('hidden', 'flex'); else toolbar.classList.ireplace('flex', 'hidden');
         }
 
+        /* --- DOWNLOAD CONTEXT TRIGGER ENGINE --- */
+        async function forceDownloadAsset(url, filename) {
+            try {
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                
+                // Cleanup thread memory allocations safely
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+            } catch (e) {
+                // Fallback route context if network blocks blob requests
+                window.open(url, '_blank');
+            }
+        }
+
+        function downloadSelectedMedia() {
+            if (selectedItems.length === 0) return;
+            selectedItems.forEach(item => {
+                forceDownloadAsset(item.download_url, item.name);
+            });
+            toggleSelectMode(); // Reset selection state after calling loops
+        }
+
+        /* --- GALLERY CONTEXT INITIALIZATION --- */
         async function fetchGalleryData() {
             if(!CONFIG.username || !CONFIG.repo) {
                 document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-zinc-500"><p class="text-sm">Please click "Setup Auth" below to link your repository.</p></div>';
@@ -371,12 +335,16 @@
         function renderActiveCarouselMedia() {
             const item = globalMediaRegistry[currentCarouselIndex]; if (!item) return;
             const content = document.getElementById('lightbox-content');
-            content.classList.add('scale-95', 'opacity-0');
+            content.transform = "scale-95"; content.classList.add('opacity-0');
 
             setTimeout(() => {
                 document.getElementById('lightbox-date').innerText = new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
                 content.innerHTML = item.type === 'video' ? `<video src="${item.download_url}" controls autoplay class="max-w-full max-h-[70vh] rounded-lg shadow-2xl object-contain"></video>` : `<img src="${item.download_url}" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl" />`;
-                content.classList.remove('scale-95', 'opacity-0');
+                
+                // Link individual direct save button click action route
+                document.getElementById('lightbox-dl-btn').onclick = () => forceDownloadAsset(item.download_url, item.name);
+                
+                content.transform = "scale-100"; content.classList.remove('opacity-0');
                 updateFilmstripIndicators();
             }, 150);
         }
@@ -402,7 +370,7 @@
         
         function closeLightbox() {
             const box = document.getElementById('lightbox'); const content = document.getElementById('lightbox-content');
-            content.classList.add('scale-95', 'opacity-0'); box.classList.add('opacity-0');
+            box.classList.add('opacity-0');
             setTimeout(() => { box.classList.ireplace('flex', 'hidden'); content.innerHTML = ''; currentCarouselIndex = -1; }, 300);
         }
 
@@ -432,12 +400,75 @@
             setTimeout(() => { modal.classList.ireplace('flex', 'hidden'); resetUploadState(); }, 300);
         }
 
+        function handleFileQueueSelection(e) {
+            const files = Array.from(e.target.files); if(files.length === 0) return;
+            uploadFileQueue = files.map((file, index) => ({ id: index, file: file, status: 'pending' }));
+            const queueContainer = document.getElementById('queue-container');
+            const queueListHTML = document.getElementById('upload-queue-list');
+            
+            queueListHTML.innerHTML = uploadFileQueue.map(item => `
+                <div id="queue-row-${item.id}" class="flex justify-between items-center bg-zinc-900/60 border border-zinc-800 rounded-lg px-3 py-2 text-xs">
+                    <span class="truncate max-w-[70%] font-medium text-zinc-300">${item.file.name}</span>
+                    <span id="queue-status-${item.id}" class="text-zinc-500 font-medium flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Pending</span>
+                </div>`).join('');
+
+            queueContainer.classList.remove('hidden');
+            document.getElementById('upload-btn').removeAttribute('disabled');
+            document.getElementById('upload-btn').innerText = `Upload ${uploadFileQueue.length} Items`;
+            lucide.createIcons();
+        }
+
+        async function processUploadQueue() {
+            const mainBtn = document.getElementById('upload-btn');
+            mainBtn.setAttribute('disabled', 'true'); mainBtn.innerText = "Processing Queue...";
+
+            for (let i = 0; i < uploadFileQueue.length; i++) {
+                const item = uploadFileQueue[i];
+                const statusLabel = document.getElementById(`queue-status-${item.id}`);
+                statusLabel.className = "text-blue-400 font-medium flex items-center gap-1";
+                statusLabel.innerHTML = `<div class="animate-spin rounded-full h-3 w-3 border-t border-blue-400"></div> Pushing...`;
+
+                try {
+                    await uploadSingleFilePromise(item.file);
+                    statusLabel.className = "text-green-400 font-semibold flex items-center gap-1";
+                    statusLabel.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Sent`;
+                    lucide.createIcons();
+                } catch (err) {
+                    statusLabel.className = "text-red-400 font-semibold flex items-center gap-1";
+                    statusLabel.innerHTML = `<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Failed`;
+                    lucide.createIcons();
+                }
+            }
+            mainBtn.innerText = "Queue Complete! Reloading...";
+            setTimeout(() => { location.reload(); }, 1200);
+        }
+
+        function uploadSingleFilePromise(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = async () => {
+                    const base64Content = reader.result.split(',')[1];
+                    const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                    const uploadUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${safeName}`;
+                    try {
+                        const res = await fetch(uploadUrl, {
+                            method: 'PUT',
+                            headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ message: `Batch Upload: ${safeName}`, content: base64Content })
+                        });
+                        if (res.ok) resolve(); else reject();
+                    } catch (e) { reject(e); }
+                };
+                reader.onerror = (err) => reject(err);
+            });
+        }
+
         function resetUploadState() {
             uploadFileQueue = [];
             document.getElementById('queue-container').classList.add('hidden');
             document.getElementById('upload-queue-list').innerHTML = '';
             document.getElementById('upload-btn').setAttribute('disabled', 'true');
-            document.getElementById('upload-btn').innerText = "Push Items to GitHub";
         }
 
         async function deleteSelectedMedia() {
@@ -455,7 +486,6 @@
             } catch (e) { alert("Error deleting items."); }
         }
 
-        // Prototype helper replacements for tailwind swapping consistency
         DOMTokenList.prototype.ireplace = function(a, b) { this.add(b); this.remove(a); };
     </script>
 </body>
