@@ -22,16 +22,21 @@
         }
     </style>
 </head>
-<body class="pb-24 min-h-screen select-none">
+<body class="pb-28 min-h-screen select-none">
 
     <header class="sticky top-0 z-40 glass border-b border-zinc-800 px-4 py-3 flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold tracking-tight">Library</h1>
             <p id="photo-count" class="text-xs text-zinc-400 mt-0.5">Loading library...</p>
         </div>
-        <button onclick="handleUploadButtonClick()" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium ios-transition shadow-lg">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Photos
-        </button>
+        <div class="flex items-center gap-2">
+            <button id="select-mode-btn" onclick="toggleSelectMode()" class="text-sm font-medium text-blue-500 hover:text-blue-400 px-3 py-2 rounded-lg ios-transition">
+                Select
+            </button>
+            <button onclick="handleUploadButtonClick()" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium ios-transition shadow-lg">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add
+            </button>
+        </div>
     </header>
 
     <main id="gallery" class="p-4 max-w-7xl mx-auto space-y-8">
@@ -40,6 +45,13 @@
             <p>Reading repository data...</p>
         </div>
     </main>
+
+    <div id="delete-toolbar" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 glass border border-zinc-800 px-6 py-3 rounded-full hidden items-center gap-6 shadow-2xl animate-fade-in">
+        <span id="selected-count" class="text-sm font-medium text-zinc-300">0 Selected</span>
+        <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-600/90 hover:bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold ios-transition">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete From GitHub
+        </button>
+    </div>
 
     <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-zinc-800 py-2 flex justify-around items-center">
         <button class="flex flex-col items-center gap-1 text-blue-500">
@@ -86,7 +98,7 @@
     <div id="settings-modal" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
         <div class="glass border border-zinc-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h3 class="text-xl font-bold">GitHub Authentication</h3>
-            <p class="text-xs text-zinc-400">Credentials are required to upload files. They are saved securely only in this browser's local storage.</p>
+            <p class="text-xs text-zinc-400">Credentials are required to write/delete files. Stored securely inside your browser context.</p>
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold uppercase text-zinc-400 mb-1">GitHub Username</label>
@@ -109,8 +121,6 @@
     </div>
 
     <script>
-        // Automatic deduction of Username and Repository from the live URL!
-        // If your page is 'username.github.io/repo-name/', this automatically finds them.
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
         const autoUsername = window.location.hostname.split('.')[0];
         const autoRepo = pathSegments[0] || '';
@@ -123,21 +133,18 @@
         };
 
         let selectedFile = null;
+        let isSelectMode = false;
+        let selectedItems = []; // Stores file names marked for deletion
 
-        // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            // Always attempt to fetch data publicly right away
             fetchGalleryData();
         });
 
-        // Smart route handling for upload button
         function handleUploadButtonClick() {
             if (!CONFIG.token || !CONFIG.username || !CONFIG.repo) {
-                // Open credential settings if missing
                 openSettingsModal();
             } else {
-                // Proceed directly to image picker if already configured
                 openUploadModal();
             }
         }
@@ -160,25 +167,132 @@
             const repo = document.getElementById('cfg-repo').value.trim();
             const token = document.getElementById('cfg-token').value.trim();
 
-            if(!user || !repo || !token) {
-                alert("All fields are required to authenticate uploads.");
-                return;
-            }
+            if(!user || !repo || !token) return alert("All fields are required.");
 
             localStorage.setItem('gh_user', user);
             localStorage.setItem('gh_repo', repo);
             localStorage.setItem('gh_token', token);
             
-            // Sync values to active state
             CONFIG.username = user;
             CONFIG.repo = repo;
             CONFIG.token = token;
 
             closeSettingsModal();
-            openUploadModal(); // Smoothly bridge to upload window
+            location.reload();
         }
 
-        // Fetch files using public endpoint first
+        // Toggle Selection View
+        function toggleSelectMode() {
+            isSelectMode = !isSelectMode;
+            const btn = document.getElementById('select-mode-btn');
+            const toolbar = document.getElementById('delete-toolbar');
+            
+            if (isSelectMode) {
+                btn.innerText = "Cancel";
+                btn.classList.replace('text-blue-500', 'text-zinc-400');
+            } else {
+                btn.innerText = "Select";
+                btn.classList.replace('text-zinc-400', 'text-blue-500');
+                selectedItems = [];
+                toolbar.classList.add('hidden');
+                toolbar.classList.remove('flex');
+            }
+            
+            // Re-render visual asset overlay frames
+            document.querySelectorAll('.media-card').forEach(card => {
+                const badge = card.querySelector('.select-badge');
+                card.classList.remove('scale-95', 'opacity-60', 'border-2', 'border-blue-500');
+                if (isSelectMode) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                    badge.innerHTML = '<div class="w-5 h-5 rounded-full border-2 border-white/70 bg-black/20"></div>';
+                }
+            });
+        }
+
+        // Handle Image Box Clicks dynamically based on mode
+        function handleMediaClick(element, itemDataJson) {
+            const item = JSON.parse(decodeURIComponent(itemDataJson));
+            
+            if (!isSelectMode) {
+                openLightbox(itemDataJson);
+                return;
+            }
+
+            const index = selectedItems.findIndex(i => i.name === item.name);
+            const badge = element.querySelector('.select-badge');
+            
+            if (index > -1) {
+                // Deselect
+                selectedItems.splice(index, 1);
+                element.classList.remove('scale-95', 'opacity-70', 'border-2', 'border-blue-500');
+                badge.innerHTML = '<div class="w-5 h-5 rounded-full border-2 border-white/70 bg-black/20"></div>';
+            } else {
+                // Select
+                selectedItems.push(item);
+                element.classList.add('scale-95', 'opacity-70', 'border-2', 'border-blue-500');
+                badge.innerHTML = '<div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></div>';
+                lucide.createIcons();
+            }
+
+            // Update bottom pop-up toolbar status
+            const toolbar = document.getElementById('delete-toolbar');
+            document.getElementById('selected-count').innerText = `${selectedItems.length} Selected`;
+            
+            if (selectedItems.length > 0) {
+                toolbar.classList.remove('hidden');
+                toolbar.classList.add('flex');
+            } else {
+                toolbar.classList.add('hidden');
+                toolbar.classList.remove('flex');
+            }
+        }
+
+        // Mass Delete Command Orchestration
+        async function deleteSelectedMedia() {
+            if (!CONFIG.token) {
+                alert("Please click 'Setup Auth' to log in with your access token before removing items.");
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to permanently delete these ${selectedItems.length} items from your GitHub repository? This cannot be undone.`)) {
+                return;
+            }
+
+            const toolbar = document.getElementById('delete-toolbar');
+            toolbar.innerHTML = `<div class="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div> <span class="text-xs">Removing files...</span>`;
+
+            try {
+                for (const item of selectedItems) {
+                    const deleteUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${item.name}`;
+                    
+                    const payload = {
+                        message: `Delete media: ${item.name} via Photos App`,
+                        sha: item.sha // Essential cryptographic hash match validation requirement
+                    };
+
+                    await fetch(deleteUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `token ${CONFIG.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                }
+                
+                // Reset state parameters and refresh view array mapping
+                toggleSelectMode();
+                location.reload();
+
+            } catch (e) {
+                alert("An error occurred during target file removal configuration processing.");
+                location.reload();
+            }
+        }
+
+        // Fetch Files
         async function fetchGalleryData() {
             if(!CONFIG.username || !CONFIG.repo) {
                 document.getElementById('gallery').innerHTML = `
@@ -193,7 +307,6 @@
             const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}`;
             
             try {
-                // If token exists, use it to avoid rate limits. If not, fetch anonymously.
                 const headers = CONFIG.token ? { 'Authorization': `token ${CONFIG.token}` } : {};
                 const response = await fetch(url, { headers });
                 
@@ -203,9 +316,8 @@
                 const mediaExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm'];
                 let mediaFiles = files.filter(f => mediaExtensions.includes(f.name.split('.').pop().toLowerCase()));
 
-                // Fetch commit date history
                 const processedMedia = await Promise.all(mediaFiles.map(async (file) => {
-                    let dateStr = new Date().toISOString().split('T')[0]; // fallback to today
+                    let dateStr = new Date().toISOString().split('T')[0];
                     try {
                         const commitUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/commits?path=${file.path}&per_page=1`;
                         const cRes = await fetch(commitUrl, { headers });
@@ -218,6 +330,7 @@
                     return {
                         name: file.name,
                         download_url: file.download_url,
+                        sha: file.sha, // Saved inside the data frame layout to pass explicitly onto deletion chains
                         date: dateStr,
                         type: ['mp4', 'mov', 'webm'].includes(file.name.split('.').pop().toLowerCase()) ? 'video' : 'image'
                     };
@@ -263,7 +376,12 @@
                     </div>
                     <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1 md:gap-2">
                         ${mediaList.map((item, idx) => `
-                            <div onclick="openLightbox('${encodeURIComponent(JSON.stringify(item))}')" class="aspect-square relative overflow-hidden bg-zinc-900 group cursor-pointer active:scale-95 duration-200 rounded-sm md:rounded-md">
+                            <div onclick="handleMediaClick(this, '${encodeURIComponent(JSON.stringify(item))}')" class="media-card aspect-square relative overflow-hidden bg-zinc-900 group cursor-pointer active:scale-95 duration-200 rounded-sm md:rounded-md border-blue-500">
+                                
+                                <div class="select-badge absolute top-2 right-2 z-20 hidden">
+                                    <div class="w-5 h-5 rounded-full border-2 border-white/70 bg-black/20"></div>
+                                </div>
+
                                 ${item.type === 'video' ? `
                                     <video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted playsinline></video>
                                     <div class="absolute bottom-1.5 right-1.5 bg-black/50 backdrop-blur-sm p-0.5 rounded text-[10px] text-white flex items-center gap-0.5">
@@ -282,8 +400,8 @@
         }
 
         // Lightbox Handlers
-        function openLightbox(itemData) {
-            const item = JSON.parse(decodeURIComponent(itemData));
+        function openLightbox(itemDataJson) {
+            const item = JSON.parse(decodeURIComponent(itemDataJson));
             const wrapper = document.getElementById('lightbox-content');
             const box = document.getElementById('lightbox');
 
@@ -307,7 +425,7 @@
             }, 300);
         }
 
-        // Upload Handlers
+        // Upload Mechanics
         function openUploadModal() {
             const modal = document.getElementById('upload-modal');
             const box = document.getElementById('upload-box');
@@ -370,13 +488,13 @@
                         btn.innerText = "Success! Processing...";
                         setTimeout(() => {
                             closeUploadModal();
-                            fetchGalleryData();
+                            location.reload();
                         }, 1500);
                     } else {
                         throw new Error();
                     }
                 } catch(e) {
-                    alert("Upload failed. Your Personal Access Token might be incorrect or expired.");
+                    alert("Upload failed. Check token validity or write permissions.");
                     resetUploadState();
                 }
             };
