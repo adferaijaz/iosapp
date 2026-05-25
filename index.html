@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+        }
+        .glass {
+            background: rgba(28, 28, 30, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .ios-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="pb-24 min-h-screen select-none">
+
+    <header class="sticky top-0 z-40 glass border-b border-zinc-800 px-4 py-3 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold tracking-tight">Library</h1>
+            <p id="photo-count" class="text-xs text-zinc-400 mt-0.5">Loading library...</p>
+        </div>
+        <button onclick="handleUploadButtonClick()" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium ios-transition shadow-lg">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add Photos
+        </button>
+    </header>
+
+    <main id="gallery" class="p-4 max-w-7xl mx-auto space-y-8">
+        <div class="flex flex-col items-center justify-center py-20 text-zinc-500">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500 mb-4"></div>
+            <p>Reading repository data...</p>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-zinc-800 py-2 flex justify-around items-center">
+        <button class="flex flex-col items-center gap-1 text-blue-500">
+            <i data-lucide="image" class="w-6 h-6"></i>
+            <span class="text-[10px] font-medium">Library</span>
+        </button>
+        <button onclick="alert('For You features coming soon!')" class="flex flex-col items-center gap-1 text-zinc-400 hover:text-zinc-200">
+            <i data-lucide="heart" class="w-6 h-6"></i>
+            <span class="text-[10px] font-medium">For You</span>
+        </button>
+        <button onclick="openSettingsModal()" class="flex flex-col items-center gap-1 text-zinc-400 hover:text-zinc-200">
+            <i data-lucide="settings" class="w-6 h-6"></i>
+            <span class="text-[10px] font-medium">Setup Auth</span>
+        </button>
+    </nav>
+
+    <div id="lightbox" class="fixed inset-0 bg-black z-50 hidden flex-col justify-center items-center opacity-0 ios-transition">
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 p-2 bg-zinc-900/80 rounded-full text-white z-50">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <div id="lightbox-content" class="w-full h-full flex items-center justify-center p-4"></div>
+    </div>
+
+    <div id="upload-modal" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="glass border border-zinc-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl scale-95 opacity-0 ios-transition" id="upload-box">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold">Upload to GitHub</h3>
+                <button onclick="closeUploadModal()" class="text-zinc-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-xs text-zinc-400">Media commits directly to your repository. It will appear live on Pages within a minute.</p>
+            
+            <input type="file" id="file-input" accept="image/*,video/*" class="hidden" onchange="handleFileSelect(event)">
+            <label id="drop-zone" for="file-input" class="border-2 border-dashed border-zinc-700 hover:border-blue-500 rounded-xl p-8 flex flex-col items-center justify-center gap-2 cursor-pointer ios-transition">
+                <i data-lucide="upload-cloud" class="w-10 h-10 text-zinc-500"></i>
+                <span id="file-label" class="text-sm font-medium text-zinc-300">Select Photo or Video</span>
+            </label>
+
+            <button onclick="startUpload()" id="upload-btn" class="w-full bg-blue-600 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium py-3 rounded-xl ios-transition shadow-lg" disabled>
+                Push to GitHub
+            </button>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="glass border border-zinc-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-xl font-bold">GitHub Authentication</h3>
+            <p class="text-xs text-zinc-400">Credentials are required to upload files. They are saved securely only in this browser's local storage.</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-zinc-400 mb-1">GitHub Username</label>
+                    <input type="text" id="cfg-user" placeholder="e.g., john-doe" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-zinc-400 mb-1">Repository Name</label>
+                    <input type="text" id="cfg-repo" placeholder="e.g., my-photos" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-zinc-400 mb-1">Personal Access Token (PAT)</label>
+                    <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeSettingsModal()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-xl text-sm font-medium ios-transition">Cancel</button>
+                <button onclick="saveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl text-sm font-medium ios-transition">Save & Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Automatic deduction of Username and Repository from the live URL!
+        // If your page is 'username.github.io/repo-name/', this automatically finds them.
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        const autoUsername = window.location.hostname.split('.')[0];
+        const autoRepo = pathSegments[0] || '';
+
+        let CONFIG = {
+            username: localStorage.getItem('gh_user') || autoUsername,
+            repo: localStorage.getItem('gh_repo') || autoRepo,
+            token: localStorage.getItem('gh_token') || '',
+            folder: 'media'
+        };
+
+        let selectedFile = null;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            // Always attempt to fetch data publicly right away
+            fetchGalleryData();
+        });
+
+        // Smart route handling for upload button
+        function handleUploadButtonClick() {
+            if (!CONFIG.token || !CONFIG.username || !CONFIG.repo) {
+                // Open credential settings if missing
+                openSettingsModal();
+            } else {
+                // Proceed directly to image picker if already configured
+                openUploadModal();
+            }
+        }
+
+        function openSettingsModal() {
+            document.getElementById('cfg-user').value = CONFIG.username;
+            document.getElementById('cfg-repo').value = CONFIG.repo;
+            document.getElementById('cfg-token').value = CONFIG.token;
+            document.getElementById('settings-modal').classList.remove('hidden');
+            document.getElementById('settings-modal').classList.add('flex');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.remove('flex');
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            const user = document.getElementById('cfg-user').value.trim();
+            const repo = document.getElementById('cfg-repo').value.trim();
+            const token = document.getElementById('cfg-token').value.trim();
+
+            if(!user || !repo || !token) {
+                alert("All fields are required to authenticate uploads.");
+                return;
+            }
+
+            localStorage.setItem('gh_user', user);
+            localStorage.setItem('gh_repo', repo);
+            localStorage.setItem('gh_token', token);
+            
+            // Sync values to active state
+            CONFIG.username = user;
+            CONFIG.repo = repo;
+            CONFIG.token = token;
+
+            closeSettingsModal();
+            openUploadModal(); // Smoothly bridge to upload window
+        }
+
+        // Fetch files using public endpoint first
+        async function fetchGalleryData() {
+            if(!CONFIG.username || !CONFIG.repo) {
+                document.getElementById('gallery').innerHTML = `
+                    <div class="text-center py-20 text-zinc-500">
+                        <i data-lucide="info" class="w-12 h-12 mx-auto mb-2 text-zinc-600"></i>
+                        <p class="text-sm">Please click "Setup Auth" below to link your repository.</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}`;
+            
+            try {
+                // If token exists, use it to avoid rate limits. If not, fetch anonymously.
+                const headers = CONFIG.token ? { 'Authorization': `token ${CONFIG.token}` } : {};
+                const response = await fetch(url, { headers });
+                
+                if (!response.ok) throw new Error();
+                const files = await response.json();
+                
+                const mediaExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm'];
+                let mediaFiles = files.filter(f => mediaExtensions.includes(f.name.split('.').pop().toLowerCase()));
+
+                // Fetch commit date history
+                const processedMedia = await Promise.all(mediaFiles.map(async (file) => {
+                    let dateStr = new Date().toISOString().split('T')[0]; // fallback to today
+                    try {
+                        const commitUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/commits?path=${file.path}&per_page=1`;
+                        const cRes = await fetch(commitUrl, { headers });
+                        const commits = await cRes.json();
+                        if(commits.length > 0) {
+                            dateStr = commits[0].commit.committer.date.split('T')[0];
+                        }
+                    } catch(e) {}
+                    
+                    return {
+                        name: file.name,
+                        download_url: file.download_url,
+                        date: dateStr,
+                        type: ['mp4', 'mov', 'webm'].includes(file.name.split('.').pop().toLowerCase()) ? 'video' : 'image'
+                    };
+                }));
+
+                processedMedia.sort((a, b) => b.date.localeCompare(a.date));
+                renderGallery(processedMedia);
+                
+            } catch (err) {
+                document.getElementById('gallery').innerHTML = `
+                    <div class="text-center py-20 text-zinc-500">
+                        <i data-lucide="image-off" class="w-12 h-12 mx-auto mb-2 text-zinc-600"></i>
+                        <p class="text-sm">No media files found in the "/${CONFIG.folder}" directory yet.</p>
+                    </div>`;
+                lucide.createIcons();
+                document.getElementById('photo-count').innerText = "0 items";
+            }
+        }
+
+        function renderGallery(items) {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            document.getElementById('photo-count').innerText = `${items.length} items`;
+
+            if(items.length === 0) return;
+
+            const groups = {};
+            items.forEach(item => {
+                if(!groups[item.date]) groups[item.date] = [];
+                groups[item.date].push(item);
+            });
+
+            for (const [date, mediaList] of Object.entries(groups)) {
+                const formattedDate = new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+                
+                const section = document.createElement('section');
+                section.className = "space-y-3";
+                
+                section.innerHTML = `
+                    <div class="flex justify-between items-baseline sticky top-[60px] z-10 bg-black/80 backdrop-blur-md py-2">
+                        <h2 class="text-lg font-bold tracking-tight text-zinc-100">${formattedDate}</h2>
+                        <span class="text-xs text-zinc-500 font-medium">${mediaList.length} items</span>
+                    </div>
+                    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1 md:gap-2">
+                        ${mediaList.map((item, idx) => `
+                            <div onclick="openLightbox('${encodeURIComponent(JSON.stringify(item))}')" class="aspect-square relative overflow-hidden bg-zinc-900 group cursor-pointer active:scale-95 duration-200 rounded-sm md:rounded-md">
+                                ${item.type === 'video' ? `
+                                    <video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted playsinline></video>
+                                    <div class="absolute bottom-1.5 right-1.5 bg-black/50 backdrop-blur-sm p-0.5 rounded text-[10px] text-white flex items-center gap-0.5">
+                                        <i data-lucide="video" class="w-3 h-3"></i>
+                                    </div>
+                                ` : `
+                                    <img src="${item.download_url}" alt="" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                `}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                gallery.appendChild(section);
+            }
+            lucide.createIcons();
+        }
+
+        // Lightbox Handlers
+        function openLightbox(itemData) {
+            const item = JSON.parse(decodeURIComponent(itemData));
+            const wrapper = document.getElementById('lightbox-content');
+            const box = document.getElementById('lightbox');
+
+            if(item.type === 'video') {
+                wrapper.innerHTML = `<video src="${item.download_url}" controls autoplay class="max-w-full max-h-full rounded-lg shadow-2xl"></video>`;
+            } else {
+                wrapper.innerHTML = `<img src="${item.download_url}" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" />`;
+            }
+
+            box.classList.remove('hidden');
+            box.classList.add('flex');
+            setTimeout(() => { box.classList.remove('opacity-0'); }, 10);
+        }
+
+        function closeLightbox() {
+            const box = document.getElementById('lightbox');
+            box.classList.add('opacity-0');
+            setTimeout(() => {
+                box.classList.add('hidden');
+                document.getElementById('lightbox-content').innerHTML = '';
+            }, 300);
+        }
+
+        // Upload Handlers
+        function openUploadModal() {
+            const modal = document.getElementById('upload-modal');
+            const box = document.getElementById('upload-box');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => { box.classList.remove('opacity-0', 'scale-95'); }, 10);
+        }
+
+        function closeUploadModal() {
+            const modal = document.getElementById('upload-modal');
+            const box = document.getElementById('upload-box');
+            box.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); resetUploadState(); }, 300);
+        }
+
+        function handleFileSelect(e) {
+            selectedFile = e.target.files[0];
+            if(selectedFile) {
+                document.getElementById('file-label').innerText = selectedFile.name;
+                document.getElementById('upload-btn').removeAttribute('disabled');
+            }
+        }
+
+        function resetUploadState() {
+            selectedFile = null;
+            document.getElementById('file-label').innerText = "Select Photo or Video";
+            document.getElementById('upload-btn').setAttribute('disabled', 'true');
+            document.getElementById('upload-btn').innerText = "Push to GitHub";
+        }
+
+        async function startUpload() {
+            if(!selectedFile) return;
+            const btn = document.getElementById('upload-btn');
+            btn.setAttribute('disabled', 'true');
+            btn.innerText = "Encoding & Uploading...";
+
+            const reader = new FileReader();
+            reader.readAsDataURL(selectedFile);
+            reader.onload = async () => {
+                const base64Content = reader.result.split(',')[1];
+                const safeName = `${Date.now()}_${selectedFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                const uploadUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${safeName}`;
+
+                const payload = {
+                    message: `Upload media: ${safeName} via Photos Web App`,
+                    content: base64Content
+                };
+
+                try {
+                    const res = await fetch(uploadUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${CONFIG.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if(res.ok) {
+                        btn.innerText = "Success! Processing...";
+                        setTimeout(() => {
+                            closeUploadModal();
+                            fetchGalleryData();
+                        }, 1500);
+                    } else {
+                        throw new Error();
+                    }
+                } catch(e) {
+                    alert("Upload failed. Your Personal Access Token might be incorrect or expired.");
+                    resetUploadState();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
