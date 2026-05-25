@@ -52,8 +52,8 @@
     <div id="delete-toolbar" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 glass border border-zinc-800 px-4 py-2.5 rounded-full hidden items-center gap-4 shadow-2xl animate-fade-in whitespace-nowrap">
         <span id="selected-count" class="text-xs font-semibold text-zinc-400 px-1">0 Selected</span>
         
-        <button onclick="downloadSelectedMedia()" class="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
-            <i data-lucide="download" class="w-3.5 h-3.5 text-blue-400"></i> Save to Device
+        <button onclick="shareSelectedMedia()" class="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
+            <i data-lucide="share" class="w-3.5 h-3.5 text-blue-400"></i> Save to Device
         </button>
         
         <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-950/40 hover:bg-red-600 border border-red-900/60 hover:border-transparent text-red-400 hover:text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
@@ -81,8 +81,8 @@
             <span id="lightbox-date" class="text-sm font-semibold text-zinc-300"></span>
             
             <div class="flex items-center gap-3">
-                <button id="lightbox-dl-btn" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 rounded-full active:scale-90 ios-transition">
-                    <i data-lucide="download" class="w-4 h-4"></i>
+                <button id="lightbox-share-btn" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 rounded-full active:scale-90 ios-transition">
+                    <i data-lucide="share" class="w-4 h-4"></i>
                 </button>
                 <button onclick="closeLightbox()" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full active:scale-90 ios-transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
@@ -228,37 +228,43 @@
             if (selectedItems.length > 0) toolbar.classList.ireplace('hidden', 'flex'); else toolbar.classList.ireplace('flex', 'hidden');
         }
 
-        /* --- DOWNLOAD CONTEXT TRIGGER ENGINE --- */
-        async function forceDownloadAsset(url, filename) {
+        /* --- IMPROVISED: ADVANCED NATIVE SHARE SHEET INTERACTION ENGINE --- */
+        async function triggerNativeSystemShare(url, filename) {
             try {
                 const res = await fetch(url);
                 const blob = await res.blob();
-                const blobUrl = URL.createObjectURL(blob);
                 
-                const link = document.createElement('a');
-                link.href = blobUrl;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                
-                // Cleanup thread memory allocations safely
-                document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
-            } catch (e) {
-                // Fallback route context if network blocks blob requests
+                // Pack the blob payload into a formal File object wrapper context
+                const sharedFile = new File([blob], filename, { type: blob.type });
+
+                // Validate if the hardware runtime browser context permits file stream sharing
+                if (navigator.canShare && navigator.canShare({ files: [sharedFile] })) {
+                    await navigator.share({
+                        files: [sharedFile],
+                        title: filename
+                    });
+                    return true;
+                } else {
+                    throw new Error("System blocked raw file sharing stream pipeline context.");
+                }
+            } catch (err) {
+                // Secure fallback if device environment is desktop or strictly bars sandboxed sharing hooks
                 window.open(url, '_blank');
+                return false;
             }
         }
 
-        function downloadSelectedMedia() {
+        async function shareSelectedMedia() {
             if (selectedItems.length === 0) return;
-            selectedItems.forEach(item => {
-                forceDownloadAsset(item.download_url, item.name);
-            });
-            toggleSelectMode(); // Reset selection state after calling loops
+            
+            // Devices process Share Sheet triggers one by one
+            for (const item of selectedItems) {
+                await triggerNativeSystemShare(item.download_url, item.name);
+            }
+            toggleSelectMode();
         }
 
-        /* --- GALLERY CONTEXT INITIALIZATION --- */
+        /* --- GALLERY GRID CONTEXT ENGINE --- */
         async function fetchGalleryData() {
             if(!CONFIG.username || !CONFIG.repo) {
                 document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-zinc-500"><p class="text-sm">Please click "Setup Auth" below to link your repository.</p></div>';
@@ -335,16 +341,16 @@
         function renderActiveCarouselMedia() {
             const item = globalMediaRegistry[currentCarouselIndex]; if (!item) return;
             const content = document.getElementById('lightbox-content');
-            content.transform = "scale-95"; content.classList.add('opacity-0');
+            content.classList.add('scale-95', 'opacity-0');
 
             setTimeout(() => {
                 document.getElementById('lightbox-date').innerText = new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
                 content.innerHTML = item.type === 'video' ? `<video src="${item.download_url}" controls autoplay class="max-w-full max-h-[70vh] rounded-lg shadow-2xl object-contain"></video>` : `<img src="${item.download_url}" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl" />`;
                 
-                // Link individual direct save button click action route
-                document.getElementById('lightbox-dl-btn').onclick = () => forceDownloadAsset(item.download_url, item.name);
+                // Link top right sharing button pointer directly to system prompt layout
+                document.getElementById('lightbox-share-btn').onclick = () => triggerNativeSystemShare(item.download_url, item.name);
                 
-                content.transform = "scale-100"; content.classList.remove('opacity-0');
+                content.classList.remove('scale-95', 'opacity-0');
                 updateFilmstripIndicators();
             }, 150);
         }
@@ -370,7 +376,7 @@
         
         function closeLightbox() {
             const box = document.getElementById('lightbox'); const content = document.getElementById('lightbox-content');
-            box.classList.add('opacity-0');
+            content.classList.add('scale-95', 'opacity-0'); box.classList.add('opacity-0');
             setTimeout(() => { box.classList.ireplace('flex', 'hidden'); content.innerHTML = ''; currentCarouselIndex = -1; }, 300);
         }
 
