@@ -23,19 +23,21 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scroll-bar-width: none; }
+        
+        /* Disable standard callout restrictions to ensure long-press menus appear */
+        img, video, .media-target {
+            -webkit-touch-callout: default !important;
+        }
     </style>
 </head>
-<body class="pb-28 min-h-screen select-none">
+<body class="pb-28 min-h-screen">
 
     <header class="sticky top-0 z-40 glass border-b border-zinc-800 px-4 py-3 flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold tracking-tight">Library</h1>
             <p id="photo-count" class="text-xs text-zinc-400 mt-0.5">Loading library...</p>
         </div>
-        <div class="flex items-center gap-2">
-            <button id="select-mode-btn" onclick="toggleSelectMode()" class="text-sm font-medium text-blue-500 hover:text-blue-400 px-3 py-2 rounded-lg ios-transition">
-                Select
-            </button>
+        <div>
             <button onclick="handleUploadButtonClick()" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium ios-transition shadow-lg">
                 <i data-lucide="plus" class="w-4 h-4"></i> Add
             </button>
@@ -48,18 +50,6 @@
             <p>Reading repository data...</p>
         </div>
     </main>
-
-    <div id="delete-toolbar" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 glass border border-zinc-800 px-4 py-2.5 rounded-full hidden items-center gap-4 shadow-2xl animate-fade-in whitespace-nowrap">
-        <span id="selected-count" class="text-xs font-semibold text-zinc-400 px-1">0 Selected</span>
-        
-        <button onclick="downloadSelectedMedia()" class="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
-            <i data-lucide="download" class="w-3.5 h-3.5 text-blue-400"></i> Save to Device
-        </button>
-        
-        <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-950/40 hover:bg-red-600 border border-red-900/60 hover:border-transparent text-red-400 hover:text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete
-        </button>
-    </div>
 
     <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-zinc-800 py-2 flex justify-around items-center">
         <button class="flex flex-col items-center gap-1 text-blue-500">
@@ -79,15 +69,9 @@
     <div id="lightbox" class="fixed inset-0 bg-black z-50 hidden flex-col justify-between opacity-0 ios-transition">
         <div class="p-4 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent">
             <span id="lightbox-date" class="text-sm font-semibold text-zinc-300"></span>
-            
-            <div class="flex items-center gap-3">
-                <button id="lightbox-dl-btn" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 rounded-full active:scale-90 ios-transition">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                </button>
-                <button onclick="closeLightbox()" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full active:scale-90 ios-transition">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
+            <button onclick="closeLightbox()" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full active:scale-90 ios-transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
         </div>
         <div id="lightbox-main-view" class="relative w-full flex-1 flex items-center justify-center overflow-hidden touch-pan-y">
             <button onclick="navigateCarousel(-1)" class="absolute left-4 z-50 p-3 bg-zinc-900/40 rounded-full hover:bg-zinc-800/80 invisible md:visible"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
@@ -163,8 +147,6 @@
         let globalMediaRegistry = []; 
         let currentCarouselIndex = -1;
         let uploadFileQueue = []; 
-        let isSelectMode = false;
-        let selectedItems = []; 
         let touchStartX = 0; let touchEndX = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -195,70 +177,7 @@
             location.reload();
         }
 
-        function toggleSelectMode() {
-            isSelectMode = !isSelectMode;
-            const btn = document.getElementById('select-mode-btn');
-            const toolbar = document.getElementById('delete-toolbar');
-            if (isSelectMode) { btn.innerText = "Cancel"; btn.classList.replace('text-blue-500', 'text-zinc-400'); } 
-            else { btn.innerText = "Select"; btn.classList.replace('text-zinc-400', 'text-blue-500'); selectedItems = []; toolbar.classList.add('hidden'); }
-            document.querySelectorAll('.media-card').forEach(card => {
-                const badge = card.querySelector('.select-badge');
-                card.classList.remove('scale-95', 'opacity-60', 'border-2', 'border-blue-500');
-                if (isSelectMode) badge.classList.remove('hidden'); else badge.classList.add('hidden');
-            });
-        }
-
-        function handleMediaClick(element, filename) {
-            const matchedIndex = globalMediaRegistry.findIndex(m => m.name === filename);
-            const item = globalMediaRegistry[matchedIndex];
-            if (!isSelectMode) { openLightbox(matchedIndex); return; }
-
-            const idx = selectedItems.findIndex(i => i.name === item.name);
-            const badge = element.querySelector('.select-badge');
-            if (idx > -1) {
-                selectedItems.splice(idx, 1); element.classList.remove('scale-95', 'opacity-70', 'border-2', 'border-blue-500');
-                badge.innerHTML = '<div class="w-5 h-5 rounded-full border-2 border-white/70 bg-black/20"></div>';
-            } else {
-                selectedItems.push(item); element.classList.add('scale-95', 'opacity-70', 'border-2', 'border-blue-500');
-                badge.innerHTML = '<div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></div>';
-                lucide.createIcons();
-            }
-            const toolbar = document.getElementById('delete-toolbar');
-            document.getElementById('selected-count').innerText = `${selectedItems.length} Selected`;
-            if (selectedItems.length > 0) toolbar.classList.ireplace('hidden', 'flex'); else toolbar.classList.ireplace('flex', 'hidden');
-        }
-
-        /* --- DOWNLOAD CONTEXT TRIGGER ENGINE --- */
-        async function forceDownloadAsset(url, filename) {
-            try {
-                const res = await fetch(url);
-                const blob = await res.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                
-                const link = document.createElement('a');
-                link.href = blobUrl;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                
-                // Cleanup thread memory allocations safely
-                document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
-            } catch (e) {
-                // Fallback route context if network blocks blob requests
-                window.open(url, '_blank');
-            }
-        }
-
-        function downloadSelectedMedia() {
-            if (selectedItems.length === 0) return;
-            selectedItems.forEach(item => {
-                forceDownloadAsset(item.download_url, item.name);
-            });
-            toggleSelectMode(); // Reset selection state after calling loops
-        }
-
-        /* --- GALLERY CONTEXT INITIALIZATION --- */
+        /* --- IMMERSIVE GALLERY COMPONENT GENERATION ENGINE --- */
         async function fetchGalleryData() {
             if(!CONFIG.username || !CONFIG.repo) {
                 document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-zinc-500"><p class="text-sm">Please click "Setup Auth" below to link your repository.</p></div>';
@@ -306,13 +225,29 @@
                 section.innerHTML = `
                     <div class="flex justify-between items-baseline sticky top-[60px] z-10 bg-black/80 backdrop-blur-md py-2"><h2 class="text-lg font-bold tracking-tight text-zinc-100">${formattedDate}</h2></div>
                     <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1 md:gap-2">
-                        ${mediaList.map(item => `
-                            <div onclick="handleMediaClick(this, '${item.name}')" class="media-card aspect-square relative overflow-hidden bg-zinc-900 group cursor-pointer active:scale-95 duration-200 rounded-sm md:rounded-md">
-                                <div class="select-badge absolute top-2 right-2 z-20 hidden"><div class="w-5 h-5 rounded-full border-2 border-white/70 bg-black/20"></div></div>
-                                ${item.type === 'video' ? `<video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted playsinline></video><div class="absolute bottom-1.5 right-1.5 bg-black/50 backdrop-blur-sm p-0.5 rounded text-[10px] text-white flex items-center gap-0.5"><i data-lucide="video" class="w-3 h-3"></i></div>` 
-                                : `<img src="${item.download_url}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">`}
-                            </div>
-                        `).join('')}
+                        ${mediaList.map(item => {
+                            const indexInRegistry = globalMediaRegistry.findIndex(m => m.name === item.name);
+                            
+                            if (item.type === 'video') {
+                                // IMPROVISED: We overlay a transparent image directly above the video stream container.
+                                // This causes Safari/Chrome to treat the target as a graphic asset, opening the save menu!
+                                return `
+                                    <div class="aspect-square relative overflow-hidden bg-zinc-900 rounded-sm md:rounded-md group">
+                                        <video src="${item.download_url}" class="w-full h-full object-cover" muted playsinline loop></video>
+                                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1' height='1'></svg>" 
+                                             class="absolute inset-0 w-full h-full object-cover z-20 cursor-pointer" 
+                                             onclick="openLightbox(${indexInRegistry})">
+                                        <div class="absolute bottom-1.5 right-1.5 bg-black/50 backdrop-blur-sm p-0.5 rounded text-[10px] text-white flex items-center gap-0.5 z-10 pointer-events-none">
+                                            <i data-lucide="video" class="w-3 h-3"></i>
+                                        </div>
+                                    </div>`;
+                            } else {
+                                return `
+                                    <div onclick="openLightbox(${indexInRegistry})" class="aspect-square relative overflow-hidden bg-zinc-900 group cursor-pointer rounded-sm md:rounded-md">
+                                        <img src="${item.download_url}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                    </div>`;
+                            }
+                        }).join('')}
                     </div>`;
                 gallery.appendChild(section);
             }
@@ -326,6 +261,7 @@
                 </div>`).join('');
         }
 
+        /* --- VIEWER VIEWPORT INTERACTION CONTROL --- */
         function openLightbox(index) {
             currentCarouselIndex = index;
             const box = document.getElementById('lightbox'); box.classList.ireplace('hidden', 'flex');
@@ -335,16 +271,25 @@
         function renderActiveCarouselMedia() {
             const item = globalMediaRegistry[currentCarouselIndex]; if (!item) return;
             const content = document.getElementById('lightbox-content');
-            content.transform = "scale-95"; content.classList.add('opacity-0');
+            content.classList.add('scale-95', 'opacity-0');
 
             setTimeout(() => {
                 document.getElementById('lightbox-date').innerText = new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                content.innerHTML = item.type === 'video' ? `<video src="${item.download_url}" controls autoplay class="max-w-full max-h-[70vh] rounded-lg shadow-2xl object-contain"></video>` : `<img src="${item.download_url}" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl" />`;
                 
-                // Link individual direct save button click action route
-                document.getElementById('lightbox-dl-btn').onclick = () => forceDownloadAsset(item.download_url, item.name);
+                if (item.type === 'video') {
+                    // Apply the same transparent overlay fix inside full-screen Lightbox view
+                    content.innerHTML = `
+                        <div class="relative max-w-full max-h-[70vh] rounded-lg shadow-2xl overflow-hidden flex items-center justify-center">
+                            <video src="${item.download_url}" controls autoplay loop class="max-w-full max-h-[70vh] object-contain"></video>
+                            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1' height='1'></svg>" 
+                                 class="absolute inset-0 w-full h-full z-20 pointer-events-auto cursor-context-menu" 
+                                 style="background: transparent;">
+                        </div>`;
+                } else {
+                    content.innerHTML = `<img src="${item.download_url}" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl" />`;
+                }
                 
-                content.transform = "scale-100"; content.classList.remove('opacity-0');
+                content.classList.remove('scale-95', 'opacity-0');
                 updateFilmstripIndicators();
             }, 150);
         }
@@ -370,7 +315,7 @@
         
         function closeLightbox() {
             const box = document.getElementById('lightbox'); const content = document.getElementById('lightbox-content');
-            box.classList.add('opacity-0');
+            content.classList.add('scale-95', 'opacity-0'); box.classList.add('opacity-0');
             setTimeout(() => { box.classList.ireplace('flex', 'hidden'); content.innerHTML = ''; currentCarouselIndex = -1; }, 300);
         }
 
@@ -469,21 +414,6 @@
             document.getElementById('queue-container').classList.add('hidden');
             document.getElementById('upload-queue-list').innerHTML = '';
             document.getElementById('upload-btn').setAttribute('disabled', 'true');
-        }
-
-        async function deleteSelectedMedia() {
-            if (!CONFIG.token) return alert("Auth token required.");
-            if (!confirm(`Permanently remove ${selectedItems.length} items?`)) return;
-            try {
-                for (const item of selectedItems) {
-                    await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${item.name}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: `Delete: ${item.name}`, sha: item.sha })
-                    });
-                }
-                location.reload();
-            } catch (e) { alert("Error deleting items."); }
         }
 
         DOMTokenList.prototype.ireplace = function(a, b) { this.add(b); this.remove(a); };
