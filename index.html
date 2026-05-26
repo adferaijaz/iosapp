@@ -9,195 +9,218 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #000000;
+            background: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #0a0a0c 100%);
             color: #ffffff;
             overflow-x: hidden;
         }
-        .glass {
-            background: rgba(28, 28, 30, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+
+        /* --- APPLE LIQUID GLASS CORE UI ARCHITECTURE --- */
+        .liquid-glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                0 4px 30px rgba(0, 0, 0, 0.4);
         }
-        /* Extra deep Apple-like blur for the lock screen overlay */
-        .apple-blur {
-            background: rgba(15, 15, 17, 0.7);
-            backdrop-filter: blur(35px) saturate(160%);
-            -webkit-backdrop-filter: blur(35px) saturate(160%);
+
+        /* High-gloss overlay panel for premium depth reflections */
+        .liquid-gloss-overlay {
+            position: relative;
+            overflow: hidden;
         }
-        .ios-transition {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        .liquid-gloss-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+            z-index: 2;
         }
+
+        /* Ambient glowing fluid background behind the lock module */
+        .liquid-ambient-glow {
+            position: absolute;
+            width: 350px; h-height: 350px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.05) 50%, transparent 100%);
+            filter: blur(40px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Physics-based fluid organic easing transitions */
+        .liquid-transition {
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+        }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scroll-bar-width: none; }
 
-        /* Keyframe Engines for Face ID Logic Graphics */
+        /* Core Face ID Mechanical Keyframes */
         @keyframes dynamic-scan {
-            0% { transform: rotate(0deg); border-color: rgba(59, 130, 246, 0.4); }
-            50% { border-color: rgba(59, 130, 246, 1); }
-            100% { transform: rotate(360deg); border-color: rgba(59, 130, 246, 0.4); }
+            0% { transform: rotate(0deg); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 0 15px rgba(59, 130, 246, 0.1); }
+            50% { border-color: rgba(147, 51, 234, 0.8); box-shadow: 0 0 25px rgba(147, 51, 234, 0.3); }
+            100% { transform: rotate(360deg); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 0 15px rgba(59, 130, 246, 0.1); }
         }
         .scanning-ring {
-            animation: dynamic-scan 2s linear infinite;
+            animation: dynamic-scan 2.2s infinite cubic-bezier(0.45, 0, 0.55, 1);
         }
         @keyframes ios-shake {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
         }
-        .shake-error {
-            animation: ios-shake 0.35s ease-in-out;
-        }
+        .shake-error { animation: ios-shake 0.4s ease-in-out; }
     </style>
 </head>
 <body class="pb-28 min-h-screen select-none overflow-hidden" id="app-body">
 
-    <div id="lock-screen" class="fixed inset-0 z-50 apple-blur flex flex-col items-center justify-center p-4 transition-all duration-700 opacity-100">
-        <div id="pin-container" class="w-full max-w-sm flex flex-col items-center space-y-8 transform transition-all duration-500 scale-100">
+    <div id="lock-screen" class="fixed inset-0 z-50 bg-[#070709]/95 backdrop-blur-[40px] flex flex-col items-center justify-center p-4 transition-all duration-700 opacity-100">
+        <div class="liquid-ambient-glow"></div>
+        
+        <div id="pin-container" class="liquid-glass liquid-gloss-overlay w-full max-w-sm rounded-[32px] p-8 flex flex-col items-center space-y-8 transform transition-all duration-500 scale-100 z-10">
             
             <div class="relative w-24 h-24 flex items-center justify-center">
-                <div id="faceid-ring" class="absolute inset-0 rounded-[28px] border-2 border-zinc-700 transition-all duration-500"></div>
+                <div id="faceid-ring" class="absolute inset-0 rounded-[28px] border border-white/20 transition-all duration-700 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)]"></div>
                 <div id="faceid-glyph" class="text-zinc-300 transition-all duration-500 transform scale-100">
-                    <i data-lucide="scan-face" class="w-12 h-12 stroke-[1.5]"></i>
+                    <i data-lucide="scan-face" class="w-10 h-10 stroke-[1.25]"></i>
                 </div>
             </div>
 
-            <div class="text-center space-y-1.5">
-                <h2 id="lock-title" class="text-xl font-semibold tracking-tight text-white">Enter Passcode</h2>
-                <p id="lock-subtitle" class="text-xs text-zinc-400 font-medium">This library is encrypted and private</p>
+            <div class="text-center space-y-2">
+                <h2 id="lock-title" class="text-xl font-medium tracking-tight text-white/90">Enter Passcode</h2>
+                <p id="lock-subtitle" class="text-xs text-white/40 font-medium">Encrypted Library Protocol</p>
             </div>
 
             <div class="flex justify-center items-center gap-3 py-2">
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
             </div>
 
             <input type="tel" id="hidden-pin-input" maxlength="11" class="absolute opacity-0 pointer-events-none touch-none" autocomplete="off" autofocus>
-
-            <p class="text-xs text-zinc-500 font-medium pt-4 pointer-events-none">Type using your keyboard keypad map</p>
+            <p class="text-[11px] text-white/30 font-medium tracking-wide pt-2 pointer-events-none uppercase">Secure Input Focus Active</p>
         </div>
     </div>
 
 
-    <header class="sticky top-0 z-40 glass border-b border-zinc-800 px-4 py-3 flex justify-between items-center">
+    <header class="sticky top-0 z-40 liquid-glass liquid-gloss-overlay border-b border-white/10 px-4 py-4 flex justify-between items-center rounded-b-2xl">
         <div>
-            <h1 class="text-3xl font-bold tracking-tight">Library</h1>
-            <p id="photo-count" class="text-xs text-zinc-400 mt-0.5">Loading library...</p>
+            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">Library</h1>
+            <p id="photo-count" class="text-xs text-white/40 font-medium mt-0.5 tracking-wide">Loading container metadata...</p>
         </div>
         <div class="flex items-center gap-2">
-            <button id="select-mode-btn" onclick="toggleSelectMode()" class="text-sm font-medium text-blue-500 hover:text-blue-400 px-3 py-2 rounded-lg ios-transition">
+            <button id="select-mode-btn" onclick="toggleSelectMode()" class="text-sm font-semibold text-blue-400 hover:text-blue-300 px-3 py-2 rounded-xl liquid-transition">
                 Select
             </button>
-            <button onclick="handleUploadButtonClick()" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium ios-transition shadow-lg">
-                <i data-lucide="plus" class="w-4 h-4"></i> Add
+            <button onclick="handleUploadButtonClick()" class="flex items-center gap-1.5 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white px-4 py-2.5 rounded-full text-xs font-semibold liquid-transition shadow-[0_4px_12px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                <i data-lucide="plus" class="w-4 h-4 stroke-[2.5]"></i> Add Assets
             </button>
         </div>
     </header>
 
     <main id="gallery" class="p-4 max-w-7xl mx-auto space-y-8">
-        <div class="flex flex-col items-center justify-center py-20 text-zinc-500">
-            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500 mb-4"></div>
-            <p>Reading repository data...</p>
+        <div class="flex flex-col items-center justify-center py-20 text-white/30">
+            <div class="animate-spin rounded-full h-7 w-7 border-t-2 border-blue-500 mb-4"></div>
+            <p class="text-xs uppercase tracking-wider font-semibold">Reading safe repository logs...</p>
         </div>
     </main>
 
-    <div id="delete-toolbar" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 glass border border-zinc-800 px-4 py-2.5 rounded-full hidden items-center gap-4 shadow-2xl animate-fade-in whitespace-nowrap">
-        <span id="selected-count" class="text-xs font-semibold text-zinc-400 px-1">0 Selected</span>
-        <button onclick="downloadSelectedMedia()" class="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 active:scale-95 text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
+    <div id="delete-toolbar" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 liquid-glass liquid-gloss-overlay px-4 py-2.5 rounded-full hidden items-center gap-3 shadow-2xl animate-fade-in border border-white/20 whitespace-nowrap">
+        <span id="selected-count" class="text-xs font-bold text-white/60 px-1">0 Selected</span>
+        <button onclick="downloadSelectedMedia()" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white px-4 py-2 rounded-full text-xs font-semibold liquid-transition border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             <i data-lucide="download" class="w-3.5 h-3.5 text-blue-400"></i> Save to Device
         </button>
-        <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-950/40 hover:bg-red-600 border border-red-900/60 hover:border-transparent text-red-400 hover:text-white px-3 py-1.5 rounded-full text-xs font-semibold ios-transition">
+        <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-600 border border-red-500/30 hover:border-transparent text-red-400 hover:text-white px-4 py-2 rounded-full text-xs font-semibold liquid-transition shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete
         </button>
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 z-40 glass border-t border-zinc-800 py-2 flex justify-around items-center">
-        <button class="flex flex-col items-center gap-1 text-blue-500">
-            <i data-lucide="image" class="w-6 h-6"></i>
-            <span class="text-[10px] font-medium">Library</span>
+    <nav class="fixed bottom-0 left-0 right-0 z-40 liquid-glass liquid-gloss-overlay py-3 border-t border-white/10 flex justify-around items-center rounded-t-3xl">
+        <button class="flex flex-col items-center gap-1 text-blue-400 drop-shadow-[0_2px_8px_rgba(59,130,246,0.4)]">
+            <i data-lucide="image" class="w-5 h-5 stroke-[2]"></i>
+            <span class="text-[10px] font-bold tracking-wide">Library</span>
         </button>
-        <button onclick="alert('For You features coming soon!')" class="flex flex-col items-center gap-1 text-zinc-400 hover:text-zinc-200">
-            <i data-lucide="heart" class="w-6 h-6"></i>
-            <span class="text-[10px] font-medium">For You</span>
+        <button onclick="alert('For You features coming soon!')" class="flex flex-col items-center gap-1 text-white/40 hover:text-white/80 transition-colors">
+            <i data-lucide="heart" class="w-5 h-5 stroke-[2]"></i>
+            <span class="text-[10px] font-bold tracking-wide">For You</span>
         </button>
-        <button onclick="openSettingsModal()" class="flex flex-col items-center gap-1 text-zinc-400 hover:text-zinc-200">
-            <i data-lucide="settings" class="w-6 h-6"></i>
-            <span class="text-[10px] font-medium">Setup Auth</span>
+        <button onclick="openSettingsModal()" class="flex flex-col items-center gap-1 text-white/40 hover:text-white/80 transition-colors">
+            <i data-lucide="settings" class="w-5 h-5 stroke-[2]"></i>
+            <span class="text-[10px] font-bold tracking-wide">Setup Auth</span>
         </button>
     </nav>
 
-    <div id="lightbox" class="fixed inset-0 bg-black z-50 hidden flex-col justify-between opacity-0 ios-transition">
+    <div id="lightbox" class="fixed inset-0 bg-black/95 z-50 hidden flex-col justify-between opacity-0 liquid-transition">
         <div class="p-4 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent">
-            <span id="lightbox-date" class="text-sm font-semibold text-zinc-300"></span>
+            <span id="lightbox-date" class="text-xs font-bold tracking-wide text-white/60 uppercase"></span>
             <div class="flex items-center gap-3">
-                <button id="lightbox-dl-btn" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 rounded-full active:scale-90 ios-transition">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                </button>
-                <button onclick="closeLightbox()" class="p-2 bg-zinc-900/80 hover:bg-zinc-800 text-white rounded-full active:scale-90 ios-transition">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
+                <button id="lightbox-dl-btn" class="p-2.5 bg-white/5 hover:bg-white/10 text-white/80 rounded-full border border-white/10 active:scale-90 liquid-transition"><i data-lucide="download" class="w-4 h-4"></i></button>
+                <button onclick="closeLightbox()" class="p-2.5 bg-white/5 hover:bg-white/10 text-white rounded-full border border-white/10 active:scale-90 liquid-transition"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
         </div>
         <div id="lightbox-main-view" class="relative w-full flex-1 flex items-center justify-center overflow-hidden touch-pan-y">
-            <button onclick="navigateCarousel(-1)" class="absolute left-4 z-50 p-3 bg-zinc-900/40 rounded-full hover:bg-zinc-800/80 invisible md:visible"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-            <button onclick="navigateCarousel(1)" class="absolute right-4 z-50 p-3 bg-zinc-900/40 rounded-full hover:bg-zinc-800/80 invisible md:visible"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
-            <div id="lightbox-content" class="w-full h-full flex items-center justify-center p-4 transform scale-95 opacity-0 ios-transition"></div>
+            <button onclick="navigateCarousel(-1)" class="absolute left-4 z-50 p-3 bg-white/5 border border-white/10 rounded-full text-white/60 hover:text-white hover:bg-white/10 invisible md:visible liquid-transition"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+            <button onclick="navigateCarousel(1)" class="absolute right-4 z-50 p-3 bg-white/5 border border-white/10 rounded-full text-white/60 hover:text-white hover:bg-white/10 invisible md:visible liquid-transition"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+            <div id="lightbox-content" class="w-full h-full flex items-center justify-center p-4 transform scale-95 opacity-0 liquid-transition"></div>
         </div>
-        <div class="w-full bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-4 pb-6 px-2 z-50">
-            <div id="filmstrip" class="max-w-xl mx-auto flex gap-1.5 overflow-x-auto py-1 no-scrollbar scroll-smooth snap-x"></div>
+        <div class="w-full bg-gradient-to-t from-black/90 via-black/40 to-transparent pt-4 pb-8 px-2 z-50">
+            <div id="filmstrip" class="max-w-xl mx-auto flex gap-2 overflow-x-auto py-2 no-scrollbar scroll-smooth snap-x"></div>
         </div>
     </div>
 
-    <div id="upload-modal" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass border border-zinc-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl scale-95 opacity-0 ios-transition" id="upload-box">
+    <div id="upload-modal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4 backdrop-blur-md">
+        <div class="liquid-glass liquid-gloss-overlay rounded-[28px] max-w-md w-full p-6 space-y-4 shadow-2xl scale-95 opacity-0 liquid-transition" id="upload-box">
             <div class="flex justify-between items-center">
-                <h3 class="text-xl font-bold">Upload to GitHub</h3>
-                <button onclick="closeUploadModal()" class="text-zinc-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="text-lg font-bold tracking-tight">Upload Engine</h3>
+                <button onclick="closeUploadModal()" class="text-white/40 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <input type="file" id="file-input" accept="image/*,video/*" class="hidden" multiple onchange="handleFileQueueSelection(event)">
-            <label id="drop-zone" for="file-input" class="border-2 border-dashed border-zinc-700 hover:border-blue-500 rounded-xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer ios-transition">
-                <i data-lucide="upload-cloud" class="w-8 h-8 text-zinc-500"></i>
-                <span class="text-sm font-medium text-zinc-300">Select Multiple Photos / Videos</span>
+            <label id="drop-zone" for="file-input" class="border border-dashed border-white/20 bg-white/5 hover:bg-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer liquid-transition">
+                <i data-lucide="upload-cloud" class="w-8 h-8 text-blue-400 drop-shadow-[0_2px_6px_rgba(59,130,246,0.3)]"></i>
+                <span class="text-xs font-semibold text-white/80 tracking-wide uppercase">Select Batch Assets</span>
             </label>
-            <div id="queue-container" class="max-h-48 overflow-y-auto space-y-2 no-scrollbar hidden">
-                <p class="text-xs font-semibold uppercase text-zinc-400 tracking-wider">Upload Queue</p>
+            <div id="queue-container" class="max-h-44 overflow-y-auto space-y-2 no-scrollbar hidden">
+                <p class="text-[10px] font-bold uppercase text-white/40 tracking-wider">File Processing Queue</p>
                 <div id="upload-queue-list" class="space-y-1.5"></div>
             </div>
-            <button onclick="processUploadQueue()" id="upload-btn" class="w-full bg-blue-600 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium py-3 rounded-xl ios-transition shadow-lg" disabled>
+            <button onclick="processUploadQueue()" id="upload-btn" class="w-full bg-gradient-to-b from-blue-500 to-blue-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-white/20 text-white font-semibold py-3 rounded-xl liquid-transition shadow-lg" disabled>
                 Push Items to GitHub
             </button>
         </div>
     </div>
 
-    <div id="settings-modal" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass border border-zinc-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-xl font-bold">GitHub Authentication</h3>
-            <p class="text-xs text-zinc-400">Credentials are required to write/delete files.</p>
+    <div id="settings-modal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4 backdrop-blur-md">
+        <div class="liquid-glass liquid-gloss-overlay rounded-[28px] max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold tracking-tight">System Core Authentication</h3>
+            <p class="text-xs text-white/40">Provide a private cryptographic vault write route token configuration</p>
             <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-zinc-400 mb-1">GitHub Username</label>
-                    <input type="text" id="cfg-user" placeholder="e.g., john-doe" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                    <label class="block text-[10px] font-bold uppercase text-white/40 mb-1 tracking-wide">GitHub Username</label>
+                    <input type="text" id="cfg-user" placeholder="e.g., john-doe" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:bg-black/60 liquid-transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-zinc-400 mb-1">Repository Name</label>
-                    <input type="text" id="cfg-repo" placeholder="e.g., my-photos" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                    <label class="block text-[10px] font-bold uppercase text-white/40 mb-1 tracking-wide">Repository Name</label>
+                    <input type="text" id="cfg-repo" placeholder="e.g., my-photos" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:bg-black/60 liquid-transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-zinc-400 mb-1">Personal Access Token (PAT)</label>
-                    <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                    <label class="block text-[10px] font-bold uppercase text-white/40 mb-1 tracking-wide">Personal Access Token (PAT)</label>
+                    <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:bg-black/60 liquid-transition">
                 </div>
             </div>
             <div class="flex gap-2 pt-2">
-                <button onclick="closeSettingsModal()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-xl text-sm font-medium ios-transition">Cancel</button>
-                <button onclick="saveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl text-sm font-medium ios-transition">Save & Continue</button>
+                <button onclick="closeSettingsModal()" class="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white py-2.5 rounded-xl text-xs font-semibold liquid-transition">Cancel</button>
+                <button onclick="saveSettings()" class="flex-1 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-400 text-white py-2.5 rounded-xl text-xs font-semibold liquid-transition">Save & Link</button>
             </div>
         </div>
     </div>
@@ -229,47 +252,42 @@
             setupLockScreenSecurityEngine();
         });
 
-        /* --- AUTH CORE MECHANICS ENGINE: FACE ID IMPLEMENTATION --- */
         function setupLockScreenSecurityEngine() {
             const hiddenInput = document.getElementById('hidden-pin-input');
             const container = document.getElementById('pin-container');
             const dots = document.querySelectorAll('.pin-dot');
 
-            // Force interaction capture straight onto hidden field
             document.getElementById('lock-screen').addEventListener('click', () => hiddenInput.focus());
             hiddenInput.focus();
 
             hiddenInput.addEventListener('input', (e) => {
                 let currentVal = e.target.value.replace(/\D/g, '');
-                e.target.value = currentVal; // Strip letters cleanly
+                e.target.value = currentVal;
                 
-                // Track indicators updates 
                 dots.forEach((dot, idx) => {
                     if (idx < currentVal.length) {
-                        dot.classList.remove('border-zinc-500');
-                        dot.classList.add('bg-white', 'border-white', 'scale-110');
+                        dot.className = "pin-dot w-3 h-3 rounded-full bg-gradient-to-b from-white to-white/70 border-white scale-110 shadow-[0_0_8px_rgba(255,255,255,0.8)] liquid-transition";
                     } else {
-                        dot.classList.remove('bg-white', 'border-white', 'scale-110');
-                        dot.classList.add('border-zinc-500');
+                        dot.className = "pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
                     }
                 });
 
-                // Trigger verify upon hitting full target bounds
                 if (currentVal.length === 11) {
                     if (currentVal === TARGET_PIN) {
                         triggerAppleFaceIDSuccessAnimation();
                     } else {
-                        // Error handling sequence branch
                         container.classList.add('shake-error');
-                        dots.forEach(dot => { dot.classList.replace('bg-white', 'bg-red-500'); dot.classList.replace('border-white', 'border-red-500'); });
+                        dots.forEach(dot => { 
+                            dot.className = "pin-dot w-3 h-3 rounded-full bg-gradient-to-b from-red-400 to-red-600 border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] liquid-transition";
+                        });
                         
                         setTimeout(() => {
                             container.classList.remove('shake-error');
                             hiddenInput.value = '';
                             dots.forEach(dot => {
-                                dot.className = "pin-dot w-3 h-3 rounded-full border border-zinc-500 transition-all duration-200";
+                                dot.className = "pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
                             });
-                        }, 400);
+                        }, 450);
                     }
                 }
             });
@@ -283,35 +301,33 @@
             const screen = document.getElementById('lock-screen');
             const body = document.getElementById('app-body');
 
-            // Stage 1: Engage interactive round biometric scanner graphics 
-            ring.classList.add('scanning-ring', 'border-blue-500');
+            ring.classList.add('scanning-ring');
             ring.style.borderRadius = "50%";
-            title.innerText = "Verifying...";
+            title.innerText = "Authenticating...";
             
             setTimeout(() => {
-                // Stage 2: Resolve into Face ID check confirmation state
                 ring.classList.remove('scanning-ring');
-                ring.classList.replace('border-blue-500', 'border-green-500');
-                ring.style.backgroundColor = "rgba(34, 197, 94, 0.1)";
+                ring.style.borderColor = "#22c55e";
+                ring.style.background = "radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 80%)";
+                ring.style.boxShadow = "0 0 20px rgba(34,197,94,0.4), inset 0 1px 2px rgba(255,255,255,0.2)";
                 
                 glyph.classList.add('scale-75');
                 setTimeout(() => {
-                    glyph.innerHTML = `<i data-lucide="check" class="w-12 h-12 text-green-400 stroke-[3.5]"></i>`;
+                    glyph.innerHTML = `<i data-lucide="check" class="w-10 h-10 text-green-400 stroke-[3.5]"></i>`;
                     lucide.createIcons();
                     glyph.classList.remove('scale-75');
                     glyph.classList.add('scale-110');
-                    title.innerText = "Passcode Accepted";
-                    subtitle.innerText = "Welcome back";
+                    title.innerText = "System Unlocked";
+                    subtitle.innerText = "Liquid Pipeline Active";
                 }, 150);
 
-                // Stage 3: Smooth overlay drop away layout slide framework exit 
                 setTimeout(() => {
-                    screen.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
-                    body.classList.remove('overflow-hidden'); // Unlock scrolling metrics
+                    screen.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                    body.classList.remove('overflow-hidden');
                     setTimeout(() => screen.remove(), 700);
-                }, 1000);
+                }, 1100);
 
-            }, 1200);
+            }, 1400);
         }
 
         function handleUploadButtonClick() {
@@ -331,7 +347,7 @@
             const user = document.getElementById('cfg-user').value.trim();
             const repo = document.getElementById('cfg-repo').value.trim();
             const token = document.getElementById('cfg-token').value.trim();
-            if(!user || !repo || !token) return alert("All fields are required.");
+            if(!user || !repo || !token) return alert("All configurations required.");
             localStorage.setItem('gh_user', user); localStorage.setItem('gh_repo', repo); localStorage.setItem('gh_token', token);
             location.reload();
         }
@@ -340,11 +356,11 @@
             isSelectMode = !isSelectMode;
             const btn = document.getElementById('select-mode-btn');
             const toolbar = document.getElementById('delete-toolbar');
-            if (isSelectMode) { btn.innerText = "Cancel"; btn.classList.replace('text-blue-500', 'text-zinc-400'); } 
-            else { btn.innerText = "Select"; btn.classList.replace('text-zinc-400', 'text-blue-500'); selectedItems = []; toolbar.classList.add('hidden'); }
+            if (isSelectMode) { btn.innerText = "Cancel"; btn.classList.replace('text-blue-400', 'text-white/40'); } 
+            else { btn.innerText = "Select"; btn.classList.replace('text-white/40', 'text-blue-400'); selectedItems = []; toolbar.classList.add('hidden'); }
             document.querySelectorAll('.media-card').forEach(card => {
                 const badge = card.querySelector('.select-badge');
-                card.classList.remove('scale-95', 'opacity-60', 'border-2', 'border-blue-500');
+                card.classList.remove('scale-[0.97]', 'border-blue-500/80', 'shadow-[0_0_15px_rgba(59,130,246,0.3)]');
                 if (isSelectMode) badge.classList.remove('hidden'); else badge.classList.add('hidden');
             });
         }
@@ -357,11 +373,13 @@
             const idx = selectedItems.findIndex(i => i.name === item.name);
             const badge = element.querySelector('.select-badge');
             if (idx > -1) {
-                selectedItems.splice(idx, 1); element.classList.remove('scale-95', 'opacity-70', 'border-2', 'border-blue-500');
-                badge.innerHTML = '<div class="w-5 h-5 rounded-full border-2 border-white/70 bg-black/20"></div>';
+                selectedItems.splice(idx, 1); 
+                element.classList.remove('scale-[0.97]', 'border-blue-500/80', 'shadow-[0_0_15px_rgba(59,130,246,0.3)]');
+                badge.innerHTML = '<div class="w-5 h-5 rounded-full border border-white/40 bg-black/40 backdrop-blur-md"></div>';
             } else {
-                selectedItems.push(item); element.classList.add('scale-95', 'opacity-70', 'border-2', 'border-blue-500');
-                badge.innerHTML = '<div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></div>';
+                selectedItems.push(item); 
+                element.classList.add('scale-[0.97]', 'border-blue-500/80', 'shadow-[0_0_15px_rgba(59,130,246,0.3)]');
+                badge.innerHTML = '<div class="w-5 h-5 bg-gradient-to-b from-blue-400 to-blue-500 rounded-full flex items-center justify-center text-white border border-white/20 shadow-[0_2px_6px_rgba(59,130,246,0.4)]"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></div>';
                 lucide.createIcons();
             }
             const toolbar = document.getElementById('delete-toolbar');
@@ -389,7 +407,7 @@
 
         async function fetchGalleryData() {
             if(!CONFIG.username || !CONFIG.repo) {
-                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-zinc-500"><p class="text-sm">Please click "Setup Auth" below to link your repository.</p></div>';
+                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-white/30"><p class="text-sm">Click "Setup Auth" to initialize the media bridge routing protocol.</p></div>';
                 return;
             }
             const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}`;
@@ -417,28 +435,28 @@
                 renderGallery(globalMediaRegistry);
                 buildFilmstripLayout();
             } catch (err) {
-                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-zinc-500"><p class="text-sm">No media files found in the "/media" directory yet.</p></div>';
+                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-white/30"><p class="text-sm">Empty environment context. No entities parsed inside "/media".</p></div>';
             }
         }
 
         function renderGallery(items) {
             const gallery = document.getElementById('gallery'); gallery.innerHTML = '';
-            document.getElementById('photo-count').innerText = `${items.length} items`;
+            document.getElementById('photo-count').innerText = `${items.length} dynamic items parsed`;
             if(items.length === 0) return;
             const groups = {};
             items.forEach(item => { if(!groups[item.date]) groups[item.date] = []; groups[item.date].push(item); });
 
             for (const [date, mediaList] of Object.entries(groups)) {
-                const formattedDate = new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-                const section = document.createElement('section'); section.className = "space-y-3";
+                const formattedDate = new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                const section = document.createElement('section'); section.className = "space-y-4";
                 section.innerHTML = `
-                    <div class="flex justify-between items-baseline sticky top-[60px] z-10 bg-black/80 backdrop-blur-md py-2"><h2 class="text-lg font-bold tracking-tight text-zinc-100">${formattedDate}</h2></div>
-                    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1 md:gap-2">
+                    <div class="flex justify-between items-baseline sticky top-[76px] z-10 bg-[#0a0a0c]/80 backdrop-blur-md py-2 px-1"><h2 class="text-sm font-bold tracking-wider text-white/50 uppercase">${formattedDate}</h2></div>
+                    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
                         ${mediaList.map(item => `
-                            <div onclick="handleMediaClick(this, '${item.name}')" class="media-card aspect-square relative overflow-hidden bg-zinc-900 group cursor-pointer active:scale-95 duration-200 rounded-sm md:rounded-md">
-                                <div class="select-badge absolute top-2 right-2 z-20 hidden"><div class="w-5 h-5 rounded-full border-2 border-white/70 bg-black/20"></div></div>
-                                ${item.type === 'video' ? `<video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted playsinline></video><div class="absolute bottom-1.5 right-1.5 bg-black/50 backdrop-blur-sm p-0.5 rounded text-[10px] text-white flex items-center gap-0.5"><i data-lucide="video" class="w-3 h-3"></i></div>` 
-                                : `<img src="${item.download_url}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">`}
+                            <div onclick="handleMediaClick(this, '${item.name}')" class="media-card aspect-square relative overflow-hidden bg-white/[0.02] border border-white/5 group cursor-pointer rounded-2xl shadow-md liquid-transition hover:border-white/20 hover:scale-[1.02]">
+                                <div class="select-badge absolute top-2 right-2 z-20 hidden"><div class="w-5 h-5 rounded-full border border-white/40 bg-black/40 backdrop-blur-md"></div></div>
+                                ${item.type === 'video' ? `<video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted playsinline></video><div class="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-lg border border-white/10 text-[9px] text-white/80 font-bold tracking-wide flex items-center gap-0.5 uppercase"><i data-lucide="video" class="w-2.5 h-2.5 text-blue-400"></i> Mov</div>` 
+                                : `<img src="${item.download_url}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">`}
                             </div>
                         `).join('')}
                     </div>`;
@@ -449,7 +467,7 @@
 
         function buildFilmstripLayout() {
             document.getElementById('filmstrip').innerHTML = globalMediaRegistry.map((item, idx) => `
-                <div onclick="jumpToCarouselIndex(${idx})" id="strip-item-${idx}" class="w-10 h-14 md:w-12 md:h-16 flex-shrink-0 rounded-md overflow-hidden border border-transparent cursor-pointer snap-center ios-transition scale-90 opacity-60">
+                <div onclick="jumpToCarouselIndex(${idx})" id="strip-item-${idx}" class="w-10 h-14 md:w-11 md:h-16 flex-shrink-0 rounded-xl overflow-hidden border border-white/10 cursor-pointer snap-center liquid-transition scale-90 opacity-40">
                     ${item.type === 'video' ? `<video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted></video>` : `<img src="${item.download_url}" class="w-full h-full object-cover pointer-events-none">`}
                 </div>`).join('');
         }
@@ -463,13 +481,13 @@
         function renderActiveCarouselMedia() {
             const item = globalMediaRegistry[currentCarouselIndex]; if (!item) return;
             const content = document.getElementById('lightbox-content');
-            content.transform = "scale-95"; content.classList.add('opacity-0');
+            content.classList.add('scale-95', 'opacity-0');
 
             setTimeout(() => {
-                document.getElementById('lightbox-date').innerText = new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                content.innerHTML = item.type === 'video' ? `<video src="${item.download_url}" controls autoplay class="max-w-full max-h-[70vh] rounded-lg shadow-2xl object-contain"></video>` : `<img src="${item.download_url}" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl" />`;
+                document.getElementById('lightbox-date').innerText = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                content.innerHTML = item.type === 'video' ? `<video src="${item.download_url}" controls autoplay class="max-w-full max-h-[72vh] rounded-2xl shadow-2xl border border-white/10 object-contain"></video>` : `<img src="${item.download_url}" class="max-w-full max-h-[72vh] object-contain rounded-2xl shadow-2xl border border-white/10" />`;
                 document.getElementById('lightbox-dl-btn').onclick = () => forceDownloadAsset(item.download_url, item.name);
-                content.transform = "scale-100"; content.classList.remove('opacity-0');
+                content.classList.remove('scale-95', 'opacity-0');
                 updateFilmstripIndicators();
             }, 150);
         }
@@ -478,10 +496,10 @@
             globalMediaRegistry.forEach((_, idx) => {
                 const thumb = document.getElementById(`strip-item-${idx}`); if (!thumb) return;
                 if (idx === currentCarouselIndex) {
-                    thumb.classList.remove('scale-90', 'opacity-60', 'border-transparent'); thumb.classList.add('scale-110', 'opacity-100', 'border-2', 'border-white', 'z-10');
+                    thumb.className = "w-10 h-14 md:w-11 md:h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 border-blue-400 z-10 snap-center liquid-transition scale-110 opacity-100 shadow-[0_0_12px_rgba(59,130,246,0.5)]";
                     thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 } else {
-                    thumb.classList.remove('scale-110', 'opacity-100', 'border-2', 'border-white', 'z-10'); thumb.classList.add('scale-90', 'opacity-60', 'border-transparent');
+                    thumb.className = "w-10 h-14 md:w-11 md:h-16 flex-shrink-0 rounded-xl overflow-hidden border border-white/10 cursor-pointer snap-center liquid-transition scale-90 opacity-40";
                 }
             });
         }
@@ -532,39 +550,39 @@
             const queueListHTML = document.getElementById('upload-queue-list');
             
             queueListHTML.innerHTML = uploadFileQueue.map(item => `
-                <div id="queue-row-${item.id}" class="flex justify-between items-center bg-zinc-900/60 border border-zinc-800 rounded-lg px-3 py-2 text-xs">
-                    <span class="truncate max-w-[70%] font-medium text-zinc-300">${item.file.name}</span>
-                    <span id="queue-status-${item.id}" class="text-zinc-500 font-medium flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Pending</span>
+                <div id="queue-row-${item.id}" class="flex justify-between items-center bg-black/30 border border-white/5 rounded-xl px-3 py-2.5 text-xs">
+                    <span class="truncate max-w-[65%] font-medium text-white/70">${item.file.name}</span>
+                    <span id="queue-status-${item.id}" class="text-white/30 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]"><i data-lucide="clock" class="w-3 h-3"></i> Wait</span>
                 </div>`).join('');
 
             queueContainer.classList.remove('hidden');
             document.getElementById('upload-btn').removeAttribute('disabled');
-            document.getElementById('upload-btn').innerText = `Upload ${uploadFileQueue.length} Items`;
+            document.getElementById('upload-btn').innerText = `Process ${uploadFileQueue.length} Fluid Assets`;
             lucide.createIcons();
         }
 
         async function processUploadQueue() {
             const mainBtn = document.getElementById('upload-btn');
-            mainBtn.setAttribute('disabled', 'true'); mainBtn.innerText = "Processing Queue...";
+            mainBtn.setAttribute('disabled', 'true'); mainBtn.innerText = "Streaming Blocks...";
 
             for (let i = 0; i < uploadFileQueue.length; i++) {
                 const item = uploadFileQueue[i];
                 const statusLabel = document.getElementById(`queue-status-${item.id}`);
-                statusLabel.className = "text-blue-400 font-medium flex items-center gap-1";
-                statusLabel.innerHTML = `<div class="animate-spin rounded-full h-3 w-3 border-t border-blue-400"></div> Pushing...`;
+                statusLabel.className = "text-blue-400 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]";
+                statusLabel.innerHTML = `<div class="animate-spin rounded-full h-2.5 w-2.5 border-t border-blue-400"></div> Sync`;
 
                 try {
                     await uploadSingleFilePromise(item.file);
-                    statusLabel.className = "text-green-400 font-semibold flex items-center gap-1";
-                    statusLabel.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Sent`;
+                    statusLabel.className = "text-green-400 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]";
+                    statusLabel.innerHTML = `<i data-lucide="check-circle" class="w-3 h-3"></i> Core`;
                     lucide.createIcons();
                 } catch (err) {
-                    statusLabel.className = "text-red-400 font-semibold flex items-center gap-1";
-                    statusLabel.innerHTML = `<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Failed`;
+                    statusLabel.className = "text-red-400 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]";
+                    statusLabel.innerHTML = `<i data-lucide="alert-triangle" class="w-3 h-3"></i> Drop`;
                     lucide.createIcons();
                 }
             }
-            mainBtn.innerText = "Queue Complete! Reloading...";
+            mainBtn.innerText = "Sequence Complete. Re-indexing...";
             setTimeout(() => { location.reload(); }, 1200);
         }
 
@@ -580,7 +598,7 @@
                         const res = await fetch(uploadUrl, {
                             method: 'PUT',
                             headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ message: `Batch Upload: ${safeName}`, content: base64Content })
+                            body: JSON.stringify({ message: `Liquid Push: ${safeName}`, content: base64Content })
                         });
                         if (res.ok) resolve(); else reject();
                     } catch (e) { reject(e); }
@@ -597,18 +615,18 @@
         }
 
         async function deleteSelectedMedia() {
-            if (!CONFIG.token) return alert("Auth token required.");
-            if (!confirm(`Permanently remove ${selectedItems.length} items?`)) return;
+            if (!CONFIG.token) return alert("System auth key mapping absent.");
+            if (!confirm(`Commit permanent wipe of ${selectedItems.length} indexed files?`)) return;
             try {
                 for (const item of selectedItems) {
                     await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${item.name}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: `Delete: ${item.name}`, sha: item.sha })
+                        body: JSON.stringify({ message: `Wipe: ${item.name}`, sha: item.sha })
                     });
                 }
                 location.reload();
-            } catch (e) { alert("Error deleting items."); }
+            } catch (e) { alert("Wipe transaction execution error."); }
         }
 
         DOMTokenList.prototype.ireplace = function(a, b) { this.add(b); this.remove(a); };
