@@ -79,7 +79,6 @@
         <div class="liquid-ambient-glow"></div>
         
         <div id="pin-container" class="liquid-glass liquid-gloss-overlay w-full max-w-sm rounded-[32px] p-8 flex flex-col items-center space-y-8 transform transition-all duration-500 scale-100 z-10">
-            
             <div class="relative w-24 h-24 flex items-center justify-center">
                 <div id="faceid-ring" class="absolute inset-0 rounded-[28px] border border-white/20 transition-all duration-700 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)]"></div>
                 <div id="faceid-glyph" class="text-zinc-300 transition-all duration-500 transform scale-100">
@@ -102,8 +101,8 @@
                 <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
                 <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
                 <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner"></div>
             </div>
 
             <input type="tel" id="hidden-pin-input" maxlength="11" class="absolute -left-[1000vw] opacity-0 pointer-events-none" autocomplete="off">
@@ -111,65 +110,51 @@
         </div>
     </div>
 
-
-    <header class="sticky top-0 z-40 liquid-glass liquid-gloss-overlay border-b border-white/10 px-4 py-4 flex justify-between items-center rounded-b-2xl">
-        <div>
-            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">Library</h1>
-            <p id="photo-count" class="text-xs text-white/40 font-medium mt-0.5 tracking-wide">Loading container metadata...</p>
+    <header class="sticky top-0 z-40 liquid-glass liquid-gloss-overlay border-b border-white/10 px-4 pt-4 pb-3 flex flex-col gap-3 rounded-b-2xl">
+        <div class="flex justify-between items-center w-full">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">Library</h1>
+                <p id="photo-count" class="text-xs text-white/40 font-medium mt-0.5 tracking-wide">Scanning safe system repositories...</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="select-mode-btn" onclick="toggleSelectMode()" class="text-sm font-semibold text-blue-400 hover:text-blue-300 px-3 py-2 rounded-xl liquid-transition">Select</button>
+                <button onclick="handleUploadButtonClick()" class="flex items-center gap-1.5 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-400 text-white px-4 py-2.5 rounded-full text-xs font-semibold liquid-transition shadow-[0_4px_12px_rgba(59,130,246,0.3)]">
+                    <i data-lucide="plus" class="w-4 h-4 stroke-[2.5]"></i> Add Assets
+                </button>
+            </div>
         </div>
-        <div class="flex items-center gap-2">
-            <button id="select-mode-btn" onclick="toggleSelectMode()" class="text-sm font-semibold text-blue-400 hover:text-blue-300 px-3 py-2 rounded-xl liquid-transition">
-                Select
-            </button>
-            <button onclick="handleUploadButtonClick()" class="flex items-center gap-1.5 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white px-4 py-2.5 rounded-full text-xs font-semibold liquid-transition shadow-[0_4px_12px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-                <i data-lucide="plus" class="w-4 h-4 stroke-[2.5]"></i> Add Assets
-            </button>
+
+        <div id="album-filter-bar" class="flex gap-2 overflow-x-auto no-scrollbar py-1 w-full snap-x">
+            <button onclick="filterGalleryByAlbum('ALL')" id="filter-btn-all" class="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide border border-blue-500/30 bg-blue-500/20 text-blue-400 shadow-[0_2px_10px_rgba(59,130,246,0.2)] liquid-transition snap-center">All Media</button>
+            <button onclick="filterGalleryByAlbum('ROOT')" id="filter-btn-root" class="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide border border-white/5 bg-white/[0.02] text-white/60 hover:text-white hover:bg-white/5 liquid-transition snap-center">Unassigned</button>
         </div>
     </header>
 
-    <main id="gallery" class="p-4 max-w-7xl mx-auto space-y-8">
-        <div class="flex flex-col items-center justify-center py-20 text-white/30">
-            <div class="animate-spin rounded-full h-7 w-7 border-t-2 border-blue-500 mb-4"></div>
-            <p class="text-xs uppercase tracking-wider font-semibold">Reading safe repository logs...</p>
-        </div>
-    </main>
+    <main id="gallery" class="p-4 max-w-7xl mx-auto space-y-8"></main>
 
     <div id="delete-toolbar" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 liquid-glass liquid-gloss-overlay px-4 py-2.5 rounded-full hidden items-center gap-3 shadow-2xl border border-white/20 whitespace-nowrap">
         <span id="selected-count" class="text-xs font-bold text-white/60 px-1">0 Selected</span>
-        <button onclick="downloadSelectedMedia()" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white px-4 py-2 rounded-full text-xs font-semibold liquid-transition border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-            <i data-lucide="download" class="w-3.5 h-3.5 text-blue-400"></i> Save to Device
-        </button>
-        <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-600 border border-red-500/30 hover:border-transparent text-red-400 hover:text-white px-4 py-2 rounded-full text-xs font-semibold liquid-transition shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete
-        </button>
+        <button onclick="downloadSelectedMedia()" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-xs font-semibold liquid-transition border border-white/10"><i data-lucide="download" class="w-3.5 h-3.5 text-blue-400"></i> Save</button>
+        <button onclick="deleteSelectedMedia()" class="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-600 border border-red-500/30 text-red-400 hover:text-white px-4 py-2 rounded-full text-xs font-semibold liquid-transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete</button>
     </div>
 
     <nav class="fixed bottom-0 left-0 right-0 z-40 liquid-glass liquid-gloss-overlay py-3 border-t border-white/10 flex justify-around items-center rounded-t-3xl">
-        <button class="flex flex-col items-center gap-1 text-blue-400 drop-shadow-[0_2px_8px_rgba(59,130,246,0.4)]">
-            <i data-lucide="image" class="w-5 h-5 stroke-[2]"></i>
-            <span class="text-[10px] font-bold tracking-wide">Library</span>
-        </button>
-        <button onclick="alert('For You features coming soon!')" class="flex flex-col items-center gap-1 text-white/40 hover:text-white/80 transition-colors">
-            <i data-lucide="heart" class="w-5 h-5 stroke-[2]"></i>
-            <span class="text-[10px] font-bold tracking-wide">For You</span>
-        </button>
-        <button onclick="openSettingsModal()" class="flex flex-col items-center gap-1 text-white/40 hover:text-white/80 transition-colors">
-            <i data-lucide="settings" class="w-5 h-5 stroke-[2]"></i>
-            <span class="text-[10px] font-bold tracking-wide">Setup Auth</span>
-        </button>
+        <button class="flex flex-col items-center gap-1 text-blue-400 drop-shadow-[0_2px_8px_rgba(59,130,246,0.4)]"><i data-lucide="image" class="w-5 h-5"></i><span class="text-[10px] font-bold">Library</span></button>
+        <button onclick="alert('For You pipeline features active soon.')" class="flex flex-col items-center gap-1 text-white/40 hover:text-white/80"><i data-lucide="heart" class="w-5 h-5"></i><span class="text-[10px] font-bold">For You</span></button>
+        <button onclick="openSettingsModal()" class="flex flex-col items-center gap-1 text-white/40 hover:text-white/80"><i data-lucide="settings" class="w-5 h-5"></i><span class="text-[10px] font-bold">Setup Auth</span></button>
     </nav>
 
     <div id="lightbox" class="fixed inset-0 bg-black/95 z-50 hidden flex-col justify-between opacity-0 liquid-transition">
         <div class="p-4 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent">
-            <span id="lightbox-date" class="text-xs font-bold tracking-wide text-white/60 uppercase"></span>
+            <span id="lightbox-date" class="text-xs font-bold text-white/60 uppercase"></span>
             <div class="flex items-center gap-3">
-                <button id="lightbox-dl-btn" class="p-2.5 bg-white/5 hover:bg-white/10 text-white/80 rounded-full border border-white/10 active:scale-90 liquid-transition"><i data-lucide="download" class="w-4 h-4"></i></button>
-                <button onclick="closeLightbox()" class="p-2.5 bg-white/5 hover:bg-white/10 text-white rounded-full border border-white/10 active:scale-90 liquid-transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button id="lightbox-dl-btn" class="p-2.5 bg-white/5 text-white/80 rounded-full border border-white/10"><i data-lucide="download" class="w-4 h-4"></i></button>
+                <button onclick="closeLightbox()" class="p-2.5 bg-white/5 text-white rounded-full border border-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
         </div>
         <div id="lightbox-main-view" class="relative w-full flex-1 flex items-center justify-center overflow-hidden touch-pan-y">
-            <button onclick="navigateCarousel(-1)" class="absolute left-4 z-50 p-3 bg-white/5 border border-white/10 rounded-full text-white/60 hover:text-white hover:bg-white/10 invisible md:visible liquid-transition"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-            <button onclick="navigateCarousel(1)" class="absolute right-4 z-50 p-3 bg-white/5 border border-white/10 rounded-full text-white/60 hover:text-white hover:bg-white/10 invisible md:visible liquid-transition"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+            <button onclick="navigateCarousel(-1)" class="absolute left-4 z-50 p-3 bg-white/5 border border-white/10 rounded-full text-white/60 hover:text-white invisible md:visible"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+            <button onclick="navigateCarousel(1)" class="absolute right-4 z-50 p-3 bg-white/5 border border-white/10 rounded-full text-white/60 hover:text-white invisible md:visible"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
             <div id="lightbox-content" class="w-full h-full flex items-center justify-center p-4 transform scale-95 opacity-0 liquid-transition"></div>
         </div>
         <div class="w-full bg-gradient-to-t from-black/90 via-black/40 to-transparent pt-4 pb-8 px-2 z-50">
@@ -178,54 +163,74 @@
     </div>
 
     <div id="upload-modal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4 backdrop-blur-md">
-        <div class="liquid-glass liquid-gloss-overlay rounded-[28px] max-w-md w-full p-6 space-y-4 shadow-2xl scale-95 opacity-0 liquid-transition" id="upload-box">
+        <div class="liquid-glass liquid-gloss-overlay rounded-[28px] max-w-md w-full p-6 space-y-5 shadow-2xl scale-95 opacity-0 liquid-transition" id="upload-box">
             <div class="flex justify-between items-center">
                 <h3 class="text-lg font-bold tracking-tight">Upload Engine</h3>
                 <button onclick="closeUploadModal()" class="text-white/40 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
+
+            <div class="space-y-2">
+                <label class="block text-[10px] font-bold uppercase text-white/40 tracking-wide">Target Destination Container</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setUploadAlbumMode('existing')" id="up-mode-exist-btn" class="py-2.5 rounded-xl text-xs font-semibold border border-blue-500/40 bg-blue-500/10 text-blue-400 liquid-transition">Choose Existing</button>
+                    <button onclick="setUploadAlbumMode('new')" id="up-mode-new-btn" class="py-2.5 rounded-xl text-xs font-semibold border border-white/5 bg-white/[0.02] text-white/60 liquid-transition">Create New</button>
+                </div>
+
+                <div id="upload-existing-album-block" class="pt-1">
+                    <select id="upload-album-select" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-blue-500 liquid-transition">
+                        <option value="ROOT">Root Library (Unassigned)</option>
+                    </select>
+                </div>
+
+                <div id="upload-new-album-block" class="hidden pt-1 space-y-2">
+                    <input type="text" id="new-album-name" placeholder="Album Name (e.g., Summer Trip)" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-blue-500 liquid-transition">
+                    <input type="text" id="new-album-desc" placeholder="Brief Description / Metadata Note" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-xs text-white placeholder-white/20 focus:outline-none focus:border-blue-500 liquid-transition">
+                </div>
+            </div>
+
             <input type="file" id="file-input" accept="image/*,video/*" class="hidden" multiple onchange="handleFileQueueSelection(event)">
             <label id="drop-zone" for="file-input" class="border border-dashed border-white/20 bg-white/5 hover:bg-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer liquid-transition">
-                <i data-lucide="upload-cloud" class="w-8 h-8 text-blue-400 drop-shadow-[0_2px_6px_rgba(59,130,246,0.3)]"></i>
+                <i data-lucide="upload-cloud" class="w-8 h-8 text-blue-400"></i>
                 <span class="text-xs font-semibold text-white/80 tracking-wide uppercase">Select Batch Assets</span>
             </label>
-            <div id="queue-container" class="max-h-44 overflow-y-auto space-y-2 no-scrollbar hidden">
-                <p class="text-[10px] font-bold uppercase text-white/40 tracking-wider">File Processing Queue</p>
-                <div id="upload-queue-list" class="space-y-1.5"></div>
+
+            <div id="queue-container" class="max-h-36 overflow-y-auto space-y-2 no-scrollbar hidden">
+                <p class="text-[10px] font-bold uppercase text-white/40 tracking-wider">Processing Queue</p>
+                <div id="upload-queue-list" class="space-y-1"></div>
             </div>
-            <button onclick="processUploadQueue()" id="upload-btn" class="w-full bg-gradient-to-b from-blue-500 to-blue-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-white/20 text-white font-semibold py-3 rounded-xl liquid-transition shadow-lg" disabled>
-                Push Items to GitHub
-            </button>
+
+            <button onclick="processUploadQueue()" id="upload-btn" class="w-full bg-gradient-to-b from-blue-500 to-blue-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-white/20 text-white font-semibold py-3 rounded-xl liquid-transition shadow-lg" disabled>Select Target Files First</button>
         </div>
     </div>
 
     <div id="settings-modal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4 backdrop-blur-md">
         <div class="liquid-glass liquid-gloss-overlay rounded-[28px] max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h3 class="text-lg font-bold tracking-tight">System Core Authentication</h3>
-            <p class="text-xs text-white/40">Provide a private cryptographic vault write route token configuration</p>
+            <p class="text-xs text-white/40">Provide private cryptographic vault routing route tokens</p>
             <div class="space-y-3">
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-white/40 mb-1 tracking-wide">GitHub Username</label>
-                    <input type="text" id="cfg-user" placeholder="e.g., john-doe" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:bg-black/60 liquid-transition">
+                    <input type="text" id="cfg-user" placeholder="e.g., john-doe" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-white/40 mb-1 tracking-wide">Repository Name</label>
-                    <input type="text" id="cfg-repo" placeholder="e.g., my-photos" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:bg-black/60 liquid-transition">
+                    <input type="text" id="cfg-repo" placeholder="e.g., my-photos" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-white/40 mb-1 tracking-wide">Personal Access Token (PAT)</label>
-                    <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:bg-black/60 liquid-transition">
+                    <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full bg-black/40 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
             </div>
             <div class="flex gap-2 pt-2">
-                <button onclick="closeSettingsModal()" class="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white py-2.5 rounded-xl text-xs font-semibold liquid-transition">Cancel</button>
-                <button onclick="saveSettings()" class="flex-1 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-400 text-white py-2.5 rounded-xl text-xs font-semibold liquid-transition">Save & Link</button>
+                <button onclick="closeSettingsModal()" class="flex-1 bg-white/5 border border-white/10 text-white py-2.5 rounded-xl text-xs font-semibold">Cancel</button>
+                <button onclick="saveSettings()" class="flex-1 bg-gradient-to-b from-blue-500 to-blue-600 text-white py-2.5 rounded-xl text-xs font-semibold">Save & Link</button>
             </div>
         </div>
     </div>
 
     <script>
         const TARGET_PIN = "20175288023";
-        const AUTH_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 Hours Cache Frame
+        const AUTH_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
         const autoUsername = window.location.hostname.split('.')[0];
@@ -239,6 +244,11 @@
         };
 
         let globalMediaRegistry = []; 
+        let currentFilteredRegistry = [];
+        let globalAlbumsSet = new Set();
+        let selectedActiveAlbumFilter = 'ALL';
+        let uploadAlbumMode = 'existing'; // 'existing' | 'new'
+
         let currentCarouselIndex = -1;
         let uploadFileQueue = []; 
         let isSelectMode = false;
@@ -252,21 +262,14 @@
             evaluateSessionSecurityState();
         });
 
-        /* --- FIXED PERSISTENCE LOGIC ENGINE --- */
         function evaluateSessionSecurityState() {
             const lockScreen = document.getElementById('lock-screen');
             const body = document.getElementById('app-body');
             const lastAuth = localStorage.getItem('vault_auth_timestamp');
-            const now = Date.now();
-
-            if (lastAuth && (now - parseInt(lastAuth) < AUTH_EXPIRY_MS)) {
-                // Verified valid session exists -> bypass overlay frame entirely
-                lockScreen.remove();
-                body.classList.remove('overflow-hidden');
+            if (lastAuth && (Date.now() - parseInt(lastAuth) < AUTH_EXPIRY_MS)) {
+                lockScreen.remove(); body.classList.remove('overflow-hidden');
             } else {
-                // Session expired or missing -> mount protection layer setup
-                lockScreen.classList.remove('hidden');
-                setupLockScreenSecurityEngine();
+                lockScreen.classList.remove('hidden'); setupLockScreenSecurityEngine();
             }
         }
 
@@ -274,40 +277,25 @@
             const hiddenInput = document.getElementById('hidden-pin-input');
             const container = document.getElementById('pin-container');
             const dots = document.querySelectorAll('.pin-dot');
-
-            // Re-focus tracking securely anywhere clicked on full surface overlay window
             document.getElementById('lock-screen').addEventListener('click', () => hiddenInput.focus());
             hiddenInput.focus();
 
             hiddenInput.addEventListener('input', (e) => {
-                let currentVal = e.target.value.replace(/\D/g, '');
-                e.target.value = currentVal;
-                
+                let currentVal = e.target.value.replace(/\D/g, ''); e.target.value = currentVal;
                 dots.forEach((dot, idx) => {
-                    if (idx < currentVal.length) {
-                        dot.className = "pin-dot w-3 h-3 rounded-full bg-gradient-to-b from-white to-white/70 border-white scale-110 shadow-[0_0_8px_rgba(255,255,255,0.8)] liquid-transition";
-                    } else {
-                        dot.className = "pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
-                    }
+                    if (idx < currentVal.length) dot.className = "pin-dot w-3 h-3 rounded-full bg-gradient-to-b from-white to-white/70 border-white scale-110 shadow-[0_0_8px_rgba(255,255,255,0.8)] liquid-transition";
+                    else dot.className = "pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
                 });
-
                 if (currentVal.length === 11) {
                     if (currentVal === TARGET_PIN) {
-                        // Stamp session token token immediately before launching graphic pipeline transitions
                         localStorage.setItem('vault_auth_timestamp', Date.now().toString());
                         triggerAppleFaceIDSuccessAnimation();
                     } else {
                         container.classList.add('shake-error');
-                        dots.forEach(dot => { 
-                            dot.className = "pin-dot w-3 h-3 rounded-full bg-gradient-to-b from-red-400 to-red-600 border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] liquid-transition";
-                        });
-                        
+                        dots.forEach(dot => dot.className = "pin-dot w-3 h-3 rounded-full bg-gradient-to-b from-red-400 to-red-600 border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] liquid-transition");
                         setTimeout(() => {
-                            container.classList.remove('shake-error');
-                            hiddenInput.value = '';
-                            dots.forEach(dot => {
-                                dot.className = "pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
-                            });
+                            container.classList.remove('shake-error'); hiddenInput.value = '';
+                            dots.forEach(dot => dot.className = "pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner liquid-transition");
                         }, 450);
                     }
                 }
@@ -315,157 +303,130 @@
         }
 
         function triggerAppleFaceIDSuccessAnimation() {
-            const ring = document.getElementById('faceid-ring');
-            const glyph = document.getElementById('faceid-glyph');
-            const title = document.getElementById('lock-title');
-            const subtitle = document.getElementById('lock-subtitle');
-            const screen = document.getElementById('lock-screen');
-            const body = document.getElementById('app-body');
-
-            ring.classList.add('scanning-ring');
-            ring.style.borderRadius = "50%";
-            title.innerText = "Authenticating...";
-            
+            const ring = document.getElementById('faceid-ring'); const glyph = document.getElementById('faceid-glyph');
+            const title = document.getElementById('lock-title'); const subtitle = document.getElementById('lock-subtitle');
+            const screen = document.getElementById('lock-screen'); const body = document.getElementById('app-body');
+            ring.classList.add('scanning-ring'); ring.style.borderRadius = "50%"; title.innerText = "Authenticating...";
             setTimeout(() => {
-                ring.classList.remove('scanning-ring');
-                ring.style.borderColor = "#22c55e";
+                ring.classList.remove('scanning-ring'); ring.style.borderColor = "#22c55e";
                 ring.style.background = "radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 80%)";
                 ring.style.boxShadow = "0 0 20px rgba(34,197,94,0.4), inset 0 1px 2px rgba(255,255,255,0.2)";
-                
                 glyph.classList.add('scale-75');
                 setTimeout(() => {
-                    glyph.innerHTML = `<i data-lucide="check" class="w-10 h-10 text-green-400 stroke-[3.5]"></i>`;
-                    lucide.createIcons();
-                    glyph.classList.remove('scale-75');
-                    glyph.classList.add('scale-110');
-                    title.innerText = "System Unlocked";
-                    subtitle.innerText = "Liquid Pipeline Active";
+                    glyph.innerHTML = `<i data-lucide="check" class="w-10 h-10 text-green-400 stroke-[3.5]"></i>`; lucide.createIcons();
+                    glyph.classList.remove('scale-75'); glyph.classList.add('scale-110');
+                    title.innerText = "System Unlocked"; subtitle.innerText = "Liquid Pipeline Active";
                 }, 150);
-
                 setTimeout(() => {
-                    screen.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
-                    body.classList.remove('overflow-hidden');
+                    screen.classList.add('opacity-0', 'scale-95', 'pointer-events-none'); body.classList.remove('overflow-hidden');
                     setTimeout(() => screen.remove(), 700);
                 }, 1100);
-
             }, 1400);
         }
 
-        function handleUploadButtonClick() {
-            if (!CONFIG.token || !CONFIG.username || !CONFIG.repo) { openSettingsModal(); } else { openUploadModal(); }
-        }
-
-        function openSettingsModal() {
-            document.getElementById('cfg-user').value = CONFIG.username;
-            document.getElementById('cfg-repo').value = CONFIG.repo;
-            document.getElementById('cfg-token').value = CONFIG.token;
-            document.getElementById('settings-modal').classList.ireplace('hidden', 'flex');
-        }
-
-        function closeSettingsModal() { document.getElementById('settings-modal').classList.ireplace('flex', 'hidden'); }
-
-        function saveSettings() {
-            const user = document.getElementById('cfg-user').value.trim();
-            const repo = document.getElementById('cfg-repo').value.trim();
-            const token = document.getElementById('cfg-token').value.trim();
-            if(!user || !repo || !token) return alert("All configurations required.");
-            localStorage.setItem('gh_user', user); localStorage.setItem('gh_repo', repo); localStorage.setItem('gh_token', token);
-            location.reload();
-        }
-
-        style="color:inherit;"
-
-        function toggleSelectMode() {
-            isSelectMode = !isSelectMode;
-            const btn = document.getElementById('select-mode-btn');
-            const toolbar = document.getElementById('delete-toolbar');
-            if (isSelectMode) { btn.innerText = "Cancel"; btn.classList.replace('text-blue-400', 'text-white/40'); } 
-            else { btn.innerText = "Select"; btn.classList.replace('text-white/40', 'text-blue-400'); selectedItems = []; toolbar.classList.add('hidden'); }
-            document.querySelectorAll('.media-card').forEach(card => {
-                const badge = card.querySelector('.select-badge');
-                card.classList.remove('scale-[0.97]', 'border-blue-500/80', 'shadow-[0_0_15px_rgba(59,130,246,0.3)]');
-                if (isSelectMode) badge.classList.remove('hidden'); else badge.classList.add('hidden');
-            });
-        }
-
-        function handleMediaClick(element, filename) {
-            const matchedIndex = globalMediaRegistry.findIndex(m => m.name === filename);
-            const item = globalMediaRegistry[matchedIndex];
-            if (!isSelectMode) { openLightbox(matchedIndex); return; }
-
-            const idx = selectedItems.findIndex(i => i.name === item.name);
-            const badge = element.querySelector('.select-badge');
-            if (idx > -1) {
-                selectedItems.splice(idx, 1); 
-                element.classList.remove('scale-[0.97]', 'border-blue-500/80', 'shadow-[0_0_15px_rgba(59,130,246,0.3)]');
-                badge.innerHTML = '<div class="w-5 h-5 rounded-full border border-white/40 bg-black/40 backdrop-blur-md"></div>';
+        function setUploadAlbumMode(mode) {
+            uploadAlbumMode = mode;
+            const exBtn = document.getElementById('up-mode-exist-btn'); const newBtn = document.getElementById('up-mode-new-btn');
+            const exBlock = document.getElementById('upload-existing-album-block'); const newBlock = document.getElementById('upload-new-album-block');
+            if(mode === 'existing') {
+                exBtn.className = "py-2.5 rounded-xl text-xs font-semibold border border-blue-500/40 bg-blue-500/10 text-blue-400 liquid-transition";
+                newBtn.className = "py-2.5 rounded-xl text-xs font-semibold border border-white/5 bg-white/[0.02] text-white/60 liquid-transition";
+                exBlock.classList.remove('hidden'); newBlock.classList.add('hidden');
             } else {
-                selectedItems.push(item); 
-                element.classList.add('scale-[0.97]', 'border-blue-500/80', 'shadow-[0_0_15px_rgba(59,130,246,0.3)]');
-                badge.innerHTML = '<div class="w-5 h-5 bg-gradient-to-b from-blue-400 to-blue-500 rounded-full flex items-center justify-center text-white border border-white/20 shadow-[0_2px_6px_rgba(59,130,246,0.4)]"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></div>';
-                lucide.createIcons();
+                newBtn.className = "py-2.5 rounded-xl text-xs font-semibold border border-blue-500/40 bg-blue-500/10 text-blue-400 liquid-transition";
+                exBtn.className = "py-2.5 rounded-xl text-xs font-semibold border border-white/5 bg-white/[0.02] text-white/60 liquid-transition";
+                newBlock.classList.remove('hidden'); exBlock.classList.add('hidden');
             }
-            const toolbar = document.getElementById('delete-toolbar');
-            document.getElementById('selected-count').innerText = `${selectedItems.length} Selected`;
-            if (selectedItems.length > 0) toolbar.classList.ireplace('hidden', 'flex'); else toolbar.classList.ireplace('flex', 'hidden');
-        }
-
-        async function forceDownloadAsset(url, filename) {
-            try {
-                const res = await fetch(url);
-                const blob = await res.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = blobUrl; link.download = filename;
-                document.body.appendChild(link); link.click();
-                document.body.removeChild(link); URL.revokeObjectURL(blobUrl);
-            } catch (e) { window.open(url, '_blank'); }
-        }
-
-        function downloadSelectedMedia() {
-            if (selectedItems.length === 0) return;
-            selectedItems.forEach(item => forceDownloadAsset(item.download_url, item.name));
-            toggleSelectMode();
         }
 
         async function fetchGalleryData() {
             if(!CONFIG.username || !CONFIG.repo) {
-                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-white/30"><p class="text-sm">Click "Setup Auth" to initialize the media bridge routing protocol.</p></div>';
-                return;
+                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-white/30"><p class="text-sm">Click "Setup Auth" to initialize the pipeline link route context.</p></div>'; return;
             }
-            const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}`;
+            // Fetch everything under media recursively to look into folders
+            const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/rulesets?_dummy=recursive`; 
+            const contentsUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}`;
             try {
                 const headers = CONFIG.token ? { 'Authorization': `token ${CONFIG.token}` } : {};
-                const response = await fetch(url, { headers });
+                const response = await fetch(contentsUrl, { headers });
                 if (!response.ok) throw new Error();
-                const files = await response.json();
+                const items = await response.json();
                 
+                let fileTargets = [];
+                globalAlbumsSet.clear();
+
+                for(let item of items) {
+                    if(item.type === 'dir') {
+                        globalAlbumsSet.add(item.name);
+                        const subRes = await fetch(item.url, { headers });
+                        if(subRes.ok) {
+                            const subItems = await subRes.json();
+                            subItems.forEach(si => { si.albumContext = item.name; fileTargets.push(si); });
+                        }
+                    } else if(item.type === 'file') {
+                        item.albumContext = 'ROOT'; fileTargets.push(item);
+                    }
+                }
+
                 const mediaExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm'];
-                let mediaFiles = files.filter(f => mediaExtensions.includes(f.name.split('.').pop().toLowerCase()));
+                let mediaFiles = fileTargets.filter(f => mediaExtensions.includes(f.name.split('.').pop().toLowerCase()));
 
                 globalMediaRegistry = await Promise.all(mediaFiles.map(async (file) => {
-                    let dateStr = new Date().toISOString().split('T')[0];
-                    try {
-                        const commitUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/commits?path=${file.path}&per_page=1`;
-                        const cRes = await fetch(commitUrl, { headers });
-                        const commits = await cRes.json();
-                        if(commits.length > 0) dateStr = commits[0].commit.committer.date.split('T')[0];
-                    } catch(e) {}
-                    return { name: file.name, download_url: file.download_url, sha: file.sha, date: dateStr, type: ['mp4', 'mov', 'webm'].includes(file.name.split('.').pop().toLowerCase()) ? 'video' : 'image' };
+                    return {
+                        name: file.name, download_url: file.download_url, sha: file.sha, path: file.path,
+                        album: file.albumContext, date: new Date().toISOString().split('T')[0],
+                        type: ['mp4', 'mov', 'webm'].includes(file.name.split('.').pop().toLowerCase()) ? 'video' : 'image'
+                    };
                 }));
 
-                globalMediaRegistry.sort((a, b) => b.date.localeCompare(a.date));
-                renderGallery(globalMediaRegistry);
-                buildFilmstripLayout();
+                rebuildAlbumFilterInterfaceControls();
+                filterGalleryByAlbum(selectedActiveAlbumFilter);
             } catch (err) {
-                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-white/30"><p class="text-sm">Empty environment context. No entities parsed inside "/media".</p></div>';
+                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-white/30"><p class="text-sm">Empty environment context dashboard frame maps inside "/media".</p></div>';
             }
+        }
+
+        function rebuildAlbumFilterInterfaceControls() {
+            const bar = document.getElementById('album-filter-bar');
+            const selectDropdown = document.getElementById('upload-album-select');
+            
+            bar.innerHTML = `
+                <button onclick="filterGalleryByAlbum('ALL')" id="filter-btn-all" class="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide liquid-transition snap-center">All Media</button>
+                <button onclick="filterGalleryByAlbum('ROOT')" id="filter-btn-root" class="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide liquid-transition snap-center">Unassigned</button>
+            `;
+            selectDropdown.innerHTML = `<option value="ROOT">Root Library (Unassigned)</option>`;
+
+            globalAlbumsSet.forEach(album => {
+                bar.innerHTML += `<button onclick="filterGalleryByAlbum('${album}')" id="filter-btn-${album.replace(/\s+/g, '-')}" class="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide liquid-transition snap-center">${album}</button>`;
+                selectDropdown.innerHTML += `<option value="${album}">${album}</option>`;
+            });
+        }
+
+        function filterGalleryByAlbum(albumKey) {
+            selectedActiveAlbumFilter = albumKey;
+            
+            // Toggle highlight styles on filter pills
+            const allPills = document.querySelectorAll('#album-filter-bar button');
+            allPills.forEach(pill => {
+                pill.className = "flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide border border-white/5 bg-white/[0.02] text-white/60 hover:text-white hover:bg-white/5 liquid-transition snap-center";
+            });
+            const targetId = albumKey === 'ALL' ? 'all' : (albumKey === 'ROOT' ? 'root' : albumKey.replace(/\s+/g, '-'));
+            const activePill = document.getElementById(`filter-btn-${targetId}`);
+            if(activePill) activePill.className = "flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide border border-blue-500/30 bg-blue-500/20 text-blue-400 shadow-[0_2px_10px_rgba(59,130,246,0.2)] liquid-transition snap-center";
+
+            if(albumKey === 'ALL') currentFilteredRegistry = [...globalMediaRegistry];
+            else currentFilteredRegistry = globalMediaRegistry.filter(m => m.album === albumKey);
+
+            renderGallery(currentFilteredRegistry);
+            buildFilmstripLayout();
         }
 
         function renderGallery(items) {
             const gallery = document.getElementById('gallery'); gallery.innerHTML = '';
-            document.getElementById('photo-count').innerText = `${items.length} dynamic items parsed`;
-            if(items.length === 0) return;
+            document.getElementById('photo-count').innerText = `${items.length} pipeline items categorized`;
+            if(items.length === 0) {
+                gallery.innerHTML = '<div class="text-center py-20 text-white/20 text-xs font-medium uppercase tracking-wider">No catalog assets present inside context folder</div>'; return;
+            }
             const groups = {};
             items.forEach(item => { if(!groups[item.date]) groups[item.date] = []; groups[item.date].push(item); });
 
@@ -473,7 +434,7 @@
                 const formattedDate = new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
                 const section = document.createElement('section'); section.className = "space-y-4";
                 section.innerHTML = `
-                    <div class="flex justify-between items-baseline sticky top-[76px] z-10 bg-[#0a0a0c]/80 backdrop-blur-md py-2 px-1"><h2 class="text-sm font-bold tracking-wider text-white/50 uppercase">${formattedDate}</h2></div>
+                    <div class="flex justify-between items-baseline sticky top-[120px] z-10 bg-[#0a0a0c]/80 backdrop-blur-md py-2 px-1"><h2 class="text-sm font-bold tracking-wider text-white/50 uppercase">${formattedDate}</h2></div>
                     <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
                         ${mediaList.map(item => `
                             <div onclick="handleMediaClick(this, '${item.name}')" class="media-card aspect-square relative overflow-hidden bg-white/[0.02] border border-white/5 group cursor-pointer rounded-2xl shadow-md liquid-transition hover:border-white/20 hover:scale-[1.02]">
@@ -489,7 +450,7 @@
         }
 
         function buildFilmstripLayout() {
-            document.getElementById('filmstrip').innerHTML = globalMediaRegistry.map((item, idx) => `
+            document.getElementById('filmstrip').innerHTML = currentFilteredRegistry.map((item, idx) => `
                 <div onclick="jumpToCarouselIndex(${idx})" id="strip-item-${idx}" class="w-10 h-14 md:w-11 md:h-16 flex-shrink-0 rounded-xl overflow-hidden border border-white/10 cursor-pointer snap-center liquid-transition scale-90 opacity-40">
                     ${item.type === 'video' ? `<video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted></video>` : `<img src="${item.download_url}" class="w-full h-full object-cover pointer-events-none">`}
                 </div>`).join('');
@@ -502,7 +463,7 @@
         }
 
         function renderActiveCarouselMedia() {
-            const item = globalMediaRegistry[currentCarouselIndex]; if (!item) return;
+            const item = currentFilteredRegistry[currentCarouselIndex]; if (!item) return;
             const content = document.getElementById('lightbox-content');
             content.classList.add('scale-95', 'opacity-0');
 
@@ -516,7 +477,7 @@
         }
 
         function updateFilmstripIndicators() {
-            globalMediaRegistry.forEach((_, idx) => {
+            currentFilteredRegistry.forEach((_, idx) => {
                 const thumb = document.getElementById(`strip-item-${idx}`); if (!thumb) return;
                 if (idx === currentCarouselIndex) {
                     thumb.className = "w-10 h-14 md:w-11 md:h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 border-blue-400 z-10 snap-center liquid-transition scale-110 opacity-100 shadow-[0_0_12px_rgba(59,130,246,0.5)]";
@@ -529,14 +490,13 @@
 
         function navigateCarousel(direction) {
             let nextIdx = currentCarouselIndex + direction;
-            if (nextIdx >= 0 && nextIdx < globalMediaRegistry.length) { currentCarouselIndex = nextIdx; renderActiveCarouselMedia(); }
+            if (nextIdx >= 0 && nextIdx < currentFilteredRegistry.length) { currentCarouselIndex = nextIdx; renderActiveCarouselMedia(); }
         }
 
         function jumpToCarouselIndex(index) { if (index !== currentCarouselIndex) { currentCarouselIndex = index; renderActiveCarouselMedia(); } }
-        
         function closeLightbox() {
             const box = document.getElementById('lightbox'); const content = document.getElementById('lightbox-content');
-            box.classList.add('opacity-0');
+            box.smell = ''; box.classList.add('opacity-0');
             setTimeout(() => { box.classList.ireplace('flex', 'hidden'); content.innerHTML = ''; currentCarouselIndex = -1; }, 300);
         }
 
@@ -551,8 +511,7 @@
         }
 
         function handleSwipeGesture() {
-            const threshold = 50;
-            if (touchStartX - touchEndX > threshold) navigateCarousel(1); else if (touchEndX - touchStartX > threshold) navigateCarousel(-1);
+            const threshold = 50; if (touchStartX - touchEndX > threshold) navigateCarousel(1); else if (touchEndX - touchStartX > threshold) navigateCarousel(-1);
         }
 
         function openUploadModal() {
@@ -573,29 +532,40 @@
             const queueListHTML = document.getElementById('upload-queue-list');
             
             queueListHTML.innerHTML = uploadFileQueue.map(item => `
-                <div id="queue-row-${item.id}" class="flex justify-between items-center bg-black/30 border border-white/5 rounded-xl px-3 py-2.5 text-xs">
+                <div id="queue-row-${item.id}" class="flex justify-between items-center bg-black/30 border border-white/5 rounded-xl px-3 py-2 text-xs">
                     <span class="truncate max-w-[65%] font-medium text-white/70">${item.file.name}</span>
                     <span id="queue-status-${item.id}" class="text-white/30 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]"><i data-lucide="clock" class="w-3 h-3"></i> Wait</span>
                 </div>`).join('');
 
             queueContainer.classList.remove('hidden');
             document.getElementById('upload-btn').removeAttribute('disabled');
-            document.getElementById('upload-btn').innerText = `Process ${uploadFileQueue.length} Fluid Assets`;
+            document.getElementById('upload-btn').innerText = `Sync ${uploadFileQueue.length} Selected Items`;
             lucide.createIcons();
         }
 
         async function processUploadQueue() {
             const mainBtn = document.getElementById('upload-btn');
-            mainBtn.setAttribute('disabled', 'true'); mainBtn.innerText = "Streaming Blocks...";
+            let targetFolderName = '';
+
+            if (uploadAlbumMode === 'new') {
+                const nameIn = document.getElementById('new-album-name').value.trim();
+                if (!nameIn) return alert("Please specify a fresh Album Name designation.");
+                targetFolderName = nameIn;
+            } else {
+                const selection = document.getElementById('upload-album-select').value;
+                targetFolderName = (selection === 'ROOT') ? '' : selection;
+            }
+
+            mainBtn.setAttribute('disabled', 'true');
+            mainBtn.innerText = "Streaming Blocks...";
 
             for (let i = 0; i < uploadFileQueue.length; i++) {
                 const item = uploadFileQueue[i];
                 const statusLabel = document.getElementById(`queue-status-${item.id}`);
-                statusLabel.className = "text-blue-400 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]";
                 statusLabel.innerHTML = `<div class="animate-spin rounded-full h-2.5 w-2.5 border-t border-blue-400"></div> Sync`;
 
                 try {
-                    await uploadSingleFilePromise(item.file);
+                    await uploadSingleFilePromise(item.file, targetFolderName);
                     statusLabel.className = "text-green-400 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]";
                     statusLabel.innerHTML = `<i data-lucide="check-circle" class="w-3 h-3"></i> Core`;
                     lucide.createIcons();
@@ -605,23 +575,29 @@
                     lucide.createIcons();
                 }
             }
-            mainBtn.innerText = "Sequence Complete. Re-indexing...";
+            mainBtn.innerText = "Indexing Complete.";
             setTimeout(() => { location.reload(); }, 1200);
         }
 
-        function uploadSingleFilePromise(file) {
+        function uploadSingleFilePromise(file, folderPath) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = async () => {
                     const base64Content = reader.result.split(',')[1];
                     const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-                    const uploadUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${safeName}`;
+                    
+                    // Route construction to match directory structures mapping
+                    const targetLocationPath = folderPath 
+                        ? `${CONFIG.folder}/${folderPath}/${safeName}`
+                        : `${CONFIG.folder}/${safeName}`;
+
+                    const uploadUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${targetLocationPath}`;
                     try {
                         const res = await fetch(uploadUrl, {
                             method: 'PUT',
                             headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ message: `Liquid Push: ${safeName}`, content: base64Content })
+                            body: JSON.stringify({ message: `Liquid Target Push: ${safeName}`, content: base64Content })
                         });
                         if (res.ok) resolve(); else reject();
                     } catch (e) { reject(e); }
@@ -635,21 +611,85 @@
             document.getElementById('queue-container').classList.add('hidden');
             document.getElementById('upload-queue-list').innerHTML = '';
             document.getElementById('upload-btn').setAttribute('disabled', 'true');
+            document.getElementById('new-album-name').value = '';
+            document.getElementById('new-album-desc').value = '';
+        }
+
+        function toggleSelectMode() {
+            isSelectMode = !isSelectMode;
+            const btn = document.getElementById('select-mode-btn'); const toolbar = document.getElementById('delete-toolbar');
+            if (isSelectMode) { btn.innerText = "Cancel"; btn.classList.replace('text-blue-400', 'text-white/40'); } 
+            else { btn.innerText = "Select"; btn.classList.replace('text-white/40', 'text-blue-400'); selectedItems = []; toolbar.classList.add('hidden'); }
+            document.querySelectorAll('.media-card').forEach(card => {
+                const badge = card.querySelector('.select-badge'); card.classList.remove('scale-[0.97]', 'border-blue-500/80');
+                if (isSelectMode) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+            });
+        }
+
+        function handleMediaClick(element, filename) {
+            const matchedIndex = currentFilteredRegistry.findIndex(m => m.name === filename);
+            const item = currentFilteredRegistry[matchedIndex];
+            if (!isSelectMode) { openLightbox(matchedIndex); return; }
+
+            const idx = selectedItems.findIndex(i => i.name === item.name);
+            const badge = element.querySelector('.select-badge');
+            if (idx > -1) {
+                selectedItems.splice(idx, 1); element.classList.remove('scale-[0.97]', 'border-blue-500/80');
+                badge.innerHTML = '<div class="w-5 h-5 rounded-full border border-white/40 bg-black/40 backdrop-blur-md"></div>';
+            } else {
+                selectedItems.push(item); element.classList.add('scale-[0.97]', 'border-blue-500/80');
+                badge.innerHTML = '<div class="w-5 h-5 bg-gradient-to-b from-blue-400 to-blue-500 rounded-full flex items-center justify-center text-white border border-white/20"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></div>';
+                lucide.createIcons();
+            }
+            const toolbar = document.getElementById('delete-toolbar');
+            document.getElementById('selected-count').innerText = `${selectedItems.length} Selected`;
+            if (selectedItems.length > 0) toolbar.classList.ireplace('hidden', 'flex'); else toolbar.classList.ireplace('flex', 'hidden');
+        }
+
+        async function forceDownloadAsset(url, filename) {
+            try {
+                const res = await fetch(url); const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob); const link = document.createElement('a');
+                link.href = blobUrl; link.download = filename; document.body.appendChild(link);
+                link.click(); document.body.removeChild(link); URL.revokeObjectURL(blobUrl);
+            } catch (e) { window.open(url, '_blank'); }
+        }
+
+        function downloadSelectedMedia() {
+            if (selectedItems.length === 0) return;
+            selectedItems.forEach(item => forceDownloadAsset(item.download_url, item.name)); toggleSelectMode();
         }
 
         async function deleteSelectedMedia() {
-            if (!CONFIG.token) return alert("System auth key mapping absent.");
-            if (!confirm(`Commit permanent wipe of ${selectedItems.length} indexed files?`)) return;
+            if (!CONFIG.token) return alert("System credentials token verification link maps missing.");
+            if (!confirm(`Commit permanent wipe execution over ${selectedItems.length} files?`)) return;
             try {
                 for (const item of selectedItems) {
-                    await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${item.name}`, {
+                    await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${item.path}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: `Wipe: ${item.name}`, sha: item.sha })
+                        body: JSON.stringify({ message: `Wipe asset data mapping node: ${item.name}`, sha: item.sha })
                     });
                 }
                 location.reload();
-            } catch (e) { alert("Wipe transaction execution error."); }
+            } catch (e) { alert("Error occurred while deleting items."); }
+        }
+
+        function handleUploadButtonClick() {
+            if (!CONFIG.token || !CONFIG.username || !CONFIG.repo) openSettingsModal(); else openUploadModal();
+        }
+        function openSettingsModal() {
+            document.getElementById('cfg-user').value = CONFIG.username;
+            document.getElementById('cfg-repo').value = CONFIG.repo;
+            document.getElementById('cfg-token').value = CONFIG.token;
+            document.getElementById('settings-modal').classList.ireplace('hidden', 'flex');
+        }
+        function closeSettingsModal() { document.getElementById('settings-modal').classList.ireplace('flex', 'hidden'); }
+        function saveSettings() {
+            const user = document.getElementById('cfg-user').value.trim(); const repo = document.getElementById('cfg-repo').value.trim(); const token = document.getElementById('cfg-token').value.trim();
+            if(!user || !repo || !token) return alert("All configurations mapping links required.");
+            localStorage.setItem('gh_user', user); localStorage.setItem('gh_repo', repo); localStorage.setItem('gh_token', token);
+            location.reload();
         }
 
         DOMTokenList.prototype.ireplace = function(a, b) { this.add(b); this.remove(a); };
