@@ -75,39 +75,39 @@
 </head>
 <body class="pb-28 min-h-screen select-none overflow-hidden" id="app-body">
 
-    <div id="lock-screen" class="fixed inset-0 z-50 bg-[#070709]/95 backdrop-blur-[40px] flex flex-col items-center justify-end sm:justify-center p-6 pb-20 sm:pb-4 transition-all duration-700 opacity-100 hidden">
+    <div id="lock-screen" class="fixed inset-0 z-50 bg-[#070709]/95 backdrop-blur-[40px] flex flex-col items-center justify-center p-4 transition-all duration-700 opacity-100 hidden">
         <div class="liquid-ambient-glow"></div>
         
-        <div id="pin-container" class="liquid-glass liquid-gloss-overlay w-full max-w-sm rounded-[32px] p-6 sm:p-8 flex flex-col items-center transform transition-all duration-500 scale-100 z-10">
+        <div id="pin-container" class="liquid-glass liquid-gloss-overlay w-full max-w-sm rounded-[32px] p-8 flex flex-col items-center space-y-8 transform transition-all duration-500 scale-100 z-10">
             
-            <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mb-6 sm:mb-8">
-                <div id="faceid-ring" class="absolute inset-0 rounded-[24px] sm:rounded-[28px] border border-white/20 transition-all duration-700 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)]"></div>
+            <div class="relative w-24 h-24 flex items-center justify-center">
+                <div id="faceid-ring" class="absolute inset-0 rounded-[28px] border border-white/20 transition-all duration-700 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)]"></div>
                 <div id="faceid-glyph" class="text-zinc-300 transition-all duration-500 transform scale-100">
-                    <i data-lucide="scan-face" class="w-8 h-8 sm:w-10 sm:h-10 stroke-[1.25]"></i>
+                    <i data-lucide="scan-face" class="w-10 h-10 stroke-[1.25]"></i>
                 </div>
             </div>
 
-            <div class="text-center mb-6 sm:mb-8">
-                <h2 id="lock-title" class="text-lg sm:text-xl font-medium tracking-tight text-white/90">Enter Passcode</h2>
+            <div class="text-center space-y-2">
+                <h2 id="lock-title" class="text-xl font-medium tracking-tight text-white/90">Enter Passcode</h2>
                 <p id="lock-subtitle" class="text-xs text-white/40 font-medium">Encrypted Library Protocol</p>
             </div>
 
-            <div class="flex justify-center items-center gap-2.5 sm:gap-3 py-2 mb-4">
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
-                <div class="pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+            <div class="flex justify-center items-center gap-3 py-2">
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
+                <div class="pin-dot w-3 h-3 rounded-full border border-white/20 transition-all duration-200 shadow-inner"></div>
             </div>
 
             <input type="tel" id="hidden-pin-input" maxlength="11" class="absolute -left-[1000vw] opacity-0 pointer-events-none" autocomplete="off">
-            <p class="text-[10px] sm:text-[11px] text-white/30 font-bold tracking-wide pointer-events-none uppercase">Secure Input Focus Active</p>
+            <p class="text-[11px] text-white/30 font-bold tracking-wide pt-2 pointer-events-none uppercase">Secure Input Focus Active</p>
         </div>
     </div>
 
@@ -225,7 +225,7 @@
 
     <script>
         const TARGET_PIN = "20175288023";
-        const AUTH_EXPIRY_MS = 24 * 60 * 60 * 1000; // Auth Token Cache Persistence Lifespan (24 hours)
+        const AUTH_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 Hours Cache Frame
 
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
         const autoUsername = window.location.hostname.split('.')[0];
@@ -252,7 +252,7 @@
             evaluateSessionSecurityState();
         });
 
-        /* --- PERSISTENCE STATE CONFIG ENGINE --- */
+        /* --- FIXED PERSISTENCE LOGIC ENGINE --- */
         function evaluateSessionSecurityState() {
             const lockScreen = document.getElementById('lock-screen');
             const body = document.getElementById('app-body');
@@ -260,11 +260,11 @@
             const now = Date.now();
 
             if (lastAuth && (now - parseInt(lastAuth) < AUTH_EXPIRY_MS)) {
-                // If token is still fresh, delete lockscreen completely to bypass prompt
+                // Verified valid session exists -> bypass overlay frame entirely
                 lockScreen.remove();
                 body.classList.remove('overflow-hidden');
             } else {
-                // If expired or absent, trigger screen initialization cleanly
+                // Session expired or missing -> mount protection layer setup
                 lockScreen.classList.remove('hidden');
                 setupLockScreenSecurityEngine();
             }
@@ -275,7 +275,7 @@
             const container = document.getElementById('pin-container');
             const dots = document.querySelectorAll('.pin-dot');
 
-            // Listen to clicks anywhere inside lockscreen layer to throw focus to target field
+            // Re-focus tracking securely anywhere clicked on full surface overlay window
             document.getElementById('lock-screen').addEventListener('click', () => hiddenInput.focus());
             hiddenInput.focus();
 
@@ -285,28 +285,28 @@
                 
                 dots.forEach((dot, idx) => {
                     if (idx < currentVal.length) {
-                        dot.className = "pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-gradient-to-b from-white to-white/70 border-white scale-110 shadow-[0_0_8px_rgba(255,255,255,0.8)] liquid-transition";
+                        dot.className = "pin-dot w-3 h-3 rounded-full bg-gradient-to-b from-white to-white/70 border-white scale-110 shadow-[0_0_8px_rgba(255,255,255,0.8)] liquid-transition";
                     } else {
-                        dot.className = "pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
+                        dot.className = "pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
                     }
                 });
 
                 if (currentVal.length === 11) {
                     if (currentVal === TARGET_PIN) {
-                        // Success -> Register authentication timestamp mark before starting animation sequence
+                        // Stamp session token token immediately before launching graphic pipeline transitions
                         localStorage.setItem('vault_auth_timestamp', Date.now().toString());
                         triggerAppleFaceIDSuccessAnimation();
                     } else {
                         container.classList.add('shake-error');
                         dots.forEach(dot => { 
-                            dot.className = "pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-gradient-to-b from-red-400 to-red-600 border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] liquid-transition";
+                            dot.className = "pin-dot w-3 h-3 rounded-full bg-gradient-to-b from-red-400 to-red-600 border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] liquid-transition";
                         });
                         
                         setTimeout(() => {
                             container.classList.remove('shake-error');
                             hiddenInput.value = '';
                             dots.forEach(dot => {
-                                dot.className = "pin-dot w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
+                                dot.className = "pin-dot w-3 h-3 rounded-full border border-white/20 shadow-inner liquid-transition";
                             });
                         }, 450);
                     }
@@ -334,7 +334,7 @@
                 
                 glyph.classList.add('scale-75');
                 setTimeout(() => {
-                    glyph.innerHTML = `<i data-lucide="check" class="w-8 h-8 sm:w-10 sm:h-10 text-green-400 stroke-[3.5]"></i>`;
+                    glyph.innerHTML = `<i data-lucide="check" class="w-10 h-10 text-green-400 stroke-[3.5]"></i>`;
                     lucide.createIcons();
                     glyph.classList.remove('scale-75');
                     glyph.classList.add('scale-110');
@@ -372,6 +372,8 @@
             localStorage.setItem('gh_user', user); localStorage.setItem('gh_repo', repo); localStorage.setItem('gh_token', token);
             location.reload();
         }
+
+        style="color:inherit;"
 
         function toggleSelectMode() {
             isSelectMode = !isSelectMode;
@@ -412,3 +414,245 @@
             try {
                 const res = await fetch(url);
                 const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl; link.download = filename;
+                document.body.appendChild(link); link.click();
+                document.body.removeChild(link); URL.revokeObjectURL(blobUrl);
+            } catch (e) { window.open(url, '_blank'); }
+        }
+
+        function downloadSelectedMedia() {
+            if (selectedItems.length === 0) return;
+            selectedItems.forEach(item => forceDownloadAsset(item.download_url, item.name));
+            toggleSelectMode();
+        }
+
+        async function fetchGalleryData() {
+            if(!CONFIG.username || !CONFIG.repo) {
+                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-white/30"><p class="text-sm">Click "Setup Auth" to initialize the media bridge routing protocol.</p></div>';
+                return;
+            }
+            const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}`;
+            try {
+                const headers = CONFIG.token ? { 'Authorization': `token ${CONFIG.token}` } : {};
+                const response = await fetch(url, { headers });
+                if (!response.ok) throw new Error();
+                const files = await response.json();
+                
+                const mediaExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm'];
+                let mediaFiles = files.filter(f => mediaExtensions.includes(f.name.split('.').pop().toLowerCase()));
+
+                globalMediaRegistry = await Promise.all(mediaFiles.map(async (file) => {
+                    let dateStr = new Date().toISOString().split('T')[0];
+                    try {
+                        const commitUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/commits?path=${file.path}&per_page=1`;
+                        const cRes = await fetch(commitUrl, { headers });
+                        const commits = await cRes.json();
+                        if(commits.length > 0) dateStr = commits[0].commit.committer.date.split('T')[0];
+                    } catch(e) {}
+                    return { name: file.name, download_url: file.download_url, sha: file.sha, date: dateStr, type: ['mp4', 'mov', 'webm'].includes(file.name.split('.').pop().toLowerCase()) ? 'video' : 'image' };
+                }));
+
+                globalMediaRegistry.sort((a, b) => b.date.localeCompare(a.date));
+                renderGallery(globalMediaRegistry);
+                buildFilmstripLayout();
+            } catch (err) {
+                document.getElementById('gallery').innerHTML = '<div class="text-center py-20 text-white/30"><p class="text-sm">Empty environment context. No entities parsed inside "/media".</p></div>';
+            }
+        }
+
+        function renderGallery(items) {
+            const gallery = document.getElementById('gallery'); gallery.innerHTML = '';
+            document.getElementById('photo-count').innerText = `${items.length} dynamic items parsed`;
+            if(items.length === 0) return;
+            const groups = {};
+            items.forEach(item => { if(!groups[item.date]) groups[item.date] = []; groups[item.date].push(item); });
+
+            for (const [date, mediaList] of Object.entries(groups)) {
+                const formattedDate = new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                const section = document.createElement('section'); section.className = "space-y-4";
+                section.innerHTML = `
+                    <div class="flex justify-between items-baseline sticky top-[76px] z-10 bg-[#0a0a0c]/80 backdrop-blur-md py-2 px-1"><h2 class="text-sm font-bold tracking-wider text-white/50 uppercase">${formattedDate}</h2></div>
+                    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
+                        ${mediaList.map(item => `
+                            <div onclick="handleMediaClick(this, '${item.name}')" class="media-card aspect-square relative overflow-hidden bg-white/[0.02] border border-white/5 group cursor-pointer rounded-2xl shadow-md liquid-transition hover:border-white/20 hover:scale-[1.02]">
+                                <div class="select-badge absolute top-2 right-2 z-20 hidden"><div class="w-5 h-5 rounded-full border border-white/40 bg-black/40 backdrop-blur-md"></div></div>
+                                ${item.type === 'video' ? `<video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted playsinline></video><div class="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-lg border border-white/10 text-[9px] text-white/80 font-bold tracking-wide flex items-center gap-0.5 uppercase"><i data-lucide="video" class="w-2.5 h-2.5 text-blue-400"></i> Mov</div>` 
+                                : `<img src="${item.download_url}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">`}
+                            </div>
+                        `).join('')}
+                    </div>`;
+                gallery.appendChild(section);
+            }
+            lucide.createIcons();
+        }
+
+        function buildFilmstripLayout() {
+            document.getElementById('filmstrip').innerHTML = globalMediaRegistry.map((item, idx) => `
+                <div onclick="jumpToCarouselIndex(${idx})" id="strip-item-${idx}" class="w-10 h-14 md:w-11 md:h-16 flex-shrink-0 rounded-xl overflow-hidden border border-white/10 cursor-pointer snap-center liquid-transition scale-90 opacity-40">
+                    ${item.type === 'video' ? `<video src="${item.download_url}" class="w-full h-full object-cover pointer-events-none" muted></video>` : `<img src="${item.download_url}" class="w-full h-full object-cover pointer-events-none">`}
+                </div>`).join('');
+        }
+
+        function openLightbox(index) {
+            currentCarouselIndex = index;
+            const box = document.getElementById('lightbox'); box.classList.ireplace('hidden', 'flex');
+            setTimeout(() => { box.classList.remove('opacity-0'); renderActiveCarouselMedia(); }, 10);
+        }
+
+        function renderActiveCarouselMedia() {
+            const item = globalMediaRegistry[currentCarouselIndex]; if (!item) return;
+            const content = document.getElementById('lightbox-content');
+            content.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                document.getElementById('lightbox-date').innerText = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                content.innerHTML = item.type === 'video' ? `<video src="${item.download_url}" controls autoplay class="max-w-full max-h-[72vh] rounded-2xl shadow-2xl border border-white/10 object-contain"></video>` : `<img src="${item.download_url}" class="max-w-full max-h-[72vh] object-contain rounded-2xl shadow-2xl border border-white/10" />`;
+                document.getElementById('lightbox-dl-btn').onclick = () => forceDownloadAsset(item.download_url, item.name);
+                content.classList.remove('scale-95', 'opacity-0');
+                updateFilmstripIndicators();
+            }, 150);
+        }
+
+        function updateFilmstripIndicators() {
+            globalMediaRegistry.forEach((_, idx) => {
+                const thumb = document.getElementById(`strip-item-${idx}`); if (!thumb) return;
+                if (idx === currentCarouselIndex) {
+                    thumb.className = "w-10 h-14 md:w-11 md:h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 border-blue-400 z-10 snap-center liquid-transition scale-110 opacity-100 shadow-[0_0_12px_rgba(59,130,246,0.5)]";
+                    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    thumb.className = "w-10 h-14 md:w-11 md:h-16 flex-shrink-0 rounded-xl overflow-hidden border border-white/10 cursor-pointer snap-center liquid-transition scale-90 opacity-40";
+                }
+            });
+        }
+
+        function navigateCarousel(direction) {
+            let nextIdx = currentCarouselIndex + direction;
+            if (nextIdx >= 0 && nextIdx < globalMediaRegistry.length) { currentCarouselIndex = nextIdx; renderActiveCarouselMedia(); }
+        }
+
+        function jumpToCarouselIndex(index) { if (index !== currentCarouselIndex) { currentCarouselIndex = index; renderActiveCarouselMedia(); } }
+        
+        function closeLightbox() {
+            const box = document.getElementById('lightbox'); const content = document.getElementById('lightbox-content');
+            box.classList.add('opacity-0');
+            setTimeout(() => { box.classList.ireplace('flex', 'hidden'); content.innerHTML = ''; currentCarouselIndex = -1; }, 300);
+        }
+
+        function setupGestureListeners() {
+            const viewZone = document.getElementById('lightbox-main-view');
+            viewZone.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+            viewZone.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipeGesture(); }, { passive: true });
+            window.addEventListener('keydown', e => {
+                if (currentCarouselIndex === -1) return;
+                if (e.key === 'ArrowRight') navigateCarousel(1); if (e.key === 'ArrowLeft') navigateCarousel(-1); if (e.key === 'Escape') closeLightbox();
+            });
+        }
+
+        function handleSwipeGesture() {
+            const threshold = 50;
+            if (touchStartX - touchEndX > threshold) navigateCarousel(1); else if (touchEndX - touchStartX > threshold) navigateCarousel(-1);
+        }
+
+        function openUploadModal() {
+            const modal = document.getElementById('upload-modal'); const box = document.getElementById('upload-box');
+            modal.classList.ireplace('hidden', 'flex'); setTimeout(() => { box.classList.remove('opacity-0', 'scale-95'); }, 10);
+        }
+
+        function closeUploadModal() {
+            const modal = document.getElementById('upload-modal'); const box = document.getElementById('upload-box');
+            box.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => { modal.classList.ireplace('flex', 'hidden'); resetUploadState(); }, 300);
+        }
+
+        function handleFileQueueSelection(e) {
+            const files = Array.from(e.target.files); if(files.length === 0) return;
+            uploadFileQueue = files.map((file, index) => ({ id: index, file: file, status: 'pending' }));
+            const queueContainer = document.getElementById('queue-container');
+            const queueListHTML = document.getElementById('upload-queue-list');
+            
+            queueListHTML.innerHTML = uploadFileQueue.map(item => `
+                <div id="queue-row-${item.id}" class="flex justify-between items-center bg-black/30 border border-white/5 rounded-xl px-3 py-2.5 text-xs">
+                    <span class="truncate max-w-[65%] font-medium text-white/70">${item.file.name}</span>
+                    <span id="queue-status-${item.id}" class="text-white/30 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]"><i data-lucide="clock" class="w-3 h-3"></i> Wait</span>
+                </div>`).join('');
+
+            queueContainer.classList.remove('hidden');
+            document.getElementById('upload-btn').removeAttribute('disabled');
+            document.getElementById('upload-btn').innerText = `Process ${uploadFileQueue.length} Fluid Assets`;
+            lucide.createIcons();
+        }
+
+        async function processUploadQueue() {
+            const mainBtn = document.getElementById('upload-btn');
+            mainBtn.setAttribute('disabled', 'true'); mainBtn.innerText = "Streaming Blocks...";
+
+            for (let i = 0; i < uploadFileQueue.length; i++) {
+                const item = uploadFileQueue[i];
+                const statusLabel = document.getElementById(`queue-status-${item.id}`);
+                statusLabel.className = "text-blue-400 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]";
+                statusLabel.innerHTML = `<div class="animate-spin rounded-full h-2.5 w-2.5 border-t border-blue-400"></div> Sync`;
+
+                try {
+                    await uploadSingleFilePromise(item.file);
+                    statusLabel.className = "text-green-400 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]";
+                    statusLabel.innerHTML = `<i data-lucide="check-circle" class="w-3 h-3"></i> Core`;
+                    lucide.createIcons();
+                } catch (err) {
+                    statusLabel.className = "text-red-400 font-bold flex items-center gap-1 uppercase tracking-wide text-[9px]";
+                    statusLabel.innerHTML = `<i data-lucide="alert-triangle" class="w-3 h-3"></i> Drop`;
+                    lucide.createIcons();
+                }
+            }
+            mainBtn.innerText = "Sequence Complete. Re-indexing...";
+            setTimeout(() => { location.reload(); }, 1200);
+        }
+
+        function uploadSingleFilePromise(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = async () => {
+                    const base64Content = reader.result.split(',')[1];
+                    const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                    const uploadUrl = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${safeName}`;
+                    try {
+                        const res = await fetch(uploadUrl, {
+                            method: 'PUT',
+                            headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ message: `Liquid Push: ${safeName}`, content: base64Content })
+                        });
+                        if (res.ok) resolve(); else reject();
+                    } catch (e) { reject(e); }
+                };
+                reader.onerror = (err) => reject(err);
+            });
+        }
+
+        function resetUploadState() {
+            uploadFileQueue = [];
+            document.getElementById('queue-container').classList.add('hidden');
+            document.getElementById('upload-queue-list').innerHTML = '';
+            document.getElementById('upload-btn').setAttribute('disabled', 'true');
+        }
+
+        async function deleteSelectedMedia() {
+            if (!CONFIG.token) return alert("System auth key mapping absent.");
+            if (!confirm(`Commit permanent wipe of ${selectedItems.length} indexed files?`)) return;
+            try {
+                for (const item of selectedItems) {
+                    await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.folder}/${item.name}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: `Wipe: ${item.name}`, sha: item.sha })
+                    });
+                }
+                location.reload();
+            } catch (e) { alert("Wipe transaction execution error."); }
+        }
+
+        DOMTokenList.prototype.ireplace = function(a, b) { this.add(b); this.remove(a); };
+    </script>
+</body>
+</html>
